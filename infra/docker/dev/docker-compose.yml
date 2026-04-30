@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/dev/Dockerfile
+    container_name: cdm_app
+    volumes:
+      - ../../../backend:/var/www/html
+    ports:
+      - "8000:8000"
+    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+    depends_on:
+      - postgres
+    env_file:
+      - path: ../../../backend/.env
+        required: false
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: cdm_postgres
+    environment:
+      POSTGRES_DB: worldcup
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:latest
+    container_name: cdm_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
