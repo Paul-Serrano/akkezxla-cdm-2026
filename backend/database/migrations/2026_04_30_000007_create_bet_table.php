@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->integer('apiId')->nullable();
             $table->string('bet', 255);
+            $table->integer('scoreHome')->nullable();
+            $table->integer('scoreAway')->nullable();
             $table->foreignId('gameId')->nullable()->constrained('game');
             $table->foreignId('userId')->constrained('user');
             $table->foreignId('playerId')->nullable()->constrained('player');

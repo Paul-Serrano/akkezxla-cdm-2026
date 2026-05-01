@@ -1,11 +1,33 @@
 <?php
 
+use App\Livewire\Admin\CreateUser;
+use App\Livewire\Auth\Login;
+use App\Livewire\MatchDay;
+use App\Livewire\Standings;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', Standings::class);
+Route::get('/matchday', MatchDay::class);
+Route::get('/matchday/{day}', MatchDay::class);
+
+// Auth
+Route::middleware('guest')->group(function () {
+    Route::get('/login', Login::class)->name('login');
 });
+
+Route::post('/logout', function () {
+    Auth::logout();
+    session()->invalidate();
+    session()->regenerateToken();
+    return redirect('/');
+})->middleware('auth')->name('logout');
+
+// Admin
+Route::get('/admin/users', CreateUser::class)
+    ->middleware('auth')
+    ->name('admin.users');
 
 /**
  * Temporary diagnostic route — remove before production.
