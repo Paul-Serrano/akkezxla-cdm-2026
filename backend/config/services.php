@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'odds_api' => [
+        'key' => env('ODDS_API_KEY'),
+    ],
+
+    'football_data' => [
+        'key'  => env('FOOTBALL_DATA_API_KEY'),
+        'base' => 'https://api.football-data.org/v4',
+    ],
+
 ];
