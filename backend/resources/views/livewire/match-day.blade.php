@@ -31,9 +31,16 @@
         <x-alert title="No games found for this day." icon="o-information-circle" class="alert-info" />
     @else
         {{-- MOBILE: stacked cards --}}
-        <div class="block md:hidden space-y-3">
+        <div class="block md:hidden">
             @foreach ($games as $game)
                 <x-game :game="$game" />
+                @if (!$loop->last)
+                    <div class="flex items-center gap-3 my-1 px-2">
+                        <div class="flex-1 border-t-2 border-base-300"></div>
+                        <x-icon name="o-ellipsis-horizontal" class="w-4 h-4 text-base-300" />
+                        <div class="flex-1 border-t-2 border-base-300"></div>
+                    </div>
+                @endif
             @endforeach
         </div>
 

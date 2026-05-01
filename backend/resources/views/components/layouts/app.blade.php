@@ -23,19 +23,30 @@
             @else
                 <x-button label="Login" icon="o-arrow-right-on-rectangle" link="{{ route('login') }}" class="btn-ghost btn-sm" />
             @endauth
+            <label for="main-drawer" class="lg:hidden ms-1 cursor-pointer">
+                <x-icon name="o-bars-3" class="w-6 h-6" />
+            </label>
         </x-slot:actions>
     </x-nav>
 
-    <x-main full-width>
+    <x-main full-width with-nav>
         {{-- Sidebar (desktop) --}}
         <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
             <x-menu activate-by-route>
                 <x-menu-item title="Standings" icon="o-table-cells" link="/" />
                 <x-menu-item title="Match Day" icon="o-calendar-days" link="/matchday" />
+                @auth
+                    @if (Auth::user()->isAdmin() || Auth::user()->isWinamax())
+                        <x-menu-item title="Ranking" icon="o-trophy" link="{{ route('ranking') }}" />
+                    @endif
+                @endauth
                 <x-menu-separator />
                 @auth
                     @if (Auth::user()->isAdmin())
-                        <x-menu-item title="Users" icon="o-users" link="{{ route('admin.users') }}" />
+                        <x-menu-sub title="Admin" icon="o-cog-6-tooth">
+                            <x-menu-item title="Users" icon="o-users" link="{{ route('admin.users') }}" />
+                            <x-menu-item title="Config" icon="o-adjustments-horizontal" link="{{ route('admin.config') }}" />
+                        </x-menu-sub>
                         <x-menu-separator />
                     @endif
                     <x-menu-item title="{{ Auth::user()->alias }}" icon="o-user-circle" />

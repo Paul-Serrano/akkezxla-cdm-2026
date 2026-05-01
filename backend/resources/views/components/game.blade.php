@@ -1,13 +1,57 @@
 @props(['game'])
 
 @php
+    use App\Enums\BetResult;
     use App\Enums\GameStatus;
+    use App\Models\Bet;
+    use App\Models\User;
+
     $home       = $game->homeTeam;
     $away       = $game->awayTeam;
     $gameStatus = GameStatus::fromGame($game);
     $played     = $gameStatus === GameStatus::Ended;
     $date       = \Carbon\Carbon::parse($game->startDate)->format('d M · H:i');
+
+    // Consensus bet (admin/winamax only, visible only to those roles)
+    $canSeeConsensus = auth()->check()
+        && in_array(auth()->user()->role, [User::ROLE_ADMIN, User::ROLE_WINAMAX]);
+
+    $topBets    = collect();
+    $totalBets  = 0;
+
+    if ($canSeeConsensus) {
+        $allBets = Bet::whereHas('user', fn($q) => $q->whereIn('role', [User::ROLE_ADMIN, User::ROLE_WINAMAX]))
+            ->where('gameId', $game->id)
+            ->whereNull('playerId')
+            ->get();
+
+        $totalBets = $allBets->count();
+
+        if ($totalBets > 0) {
+            $grouped  = $allBets->groupBy('bet')->sortByDesc(fn($g) => $g->count());
+            $maxCount = $grouped->first()->count();
+            $topBets  = $grouped->filter(fn($g) => $g->count() === $maxCount);
+        }
+    }
 @endphp
+
+{{-- Consensus macro (reused in both layouts) --}}
+@if ($canSeeConsensus)
+    @php
+        // Pre-compute result tags for each top bet
+        $topBetResults = $topBets->map(function ($group) use ($game, $played) {
+            $bet    = $group->first();
+            $result = $played
+                ? BetResult::compute($bet->scoreHome, $bet->scoreAway, $game)
+                : BetResult::Pending;
+            return [
+                'score'  => $bet->bet,
+                'count'  => $group->count(),
+                'result' => $result,
+            ];
+        })->values();
+    @endphp
+@endif
 
 {{-- MOBILE --}}
 <div class="block md:hidden">
@@ -40,6 +84,23 @@
                 </div>
             </div>
             <div class="divider my-0"></div>
+            {{-- Consensus bet (admin/winamax) --}}
+            @if ($canSeeConsensus)
+                <div class="flex flex-wrap items-center justify-center gap-1 mb-1">
+                    @if ($totalBets === 0)
+                        <span class="text-xs text-base-content/30 italic">No consensus bet</span>
+                    @else
+                        <span class="text-xs text-base-content/40 me-1">Consensus</span>
+                        @foreach ($topBetResults as $top)
+                            <span class="badge badge-sm font-mono gap-1 {{ $top['result']->badgeClass() }}">
+                                <x-icon name="{{ $top['result']->icon() }}" class="w-3 h-3" />
+                                {{ $top['score'] }}
+                                <span class="opacity-60 text-xs">×{{ $top['count'] }}</span>
+                            </span>
+                        @endforeach
+                    @endif
+                </div>
+            @endif
             <livewire:place-bet :game="$game" :key="'mob-bet-'.$game->id" />
         </div>
     </div>
@@ -74,7 +135,24 @@
             </div>
             {{-- Bet --}}
             <div class="divider divider-horizontal mx-0"></div>
-            <div class="shrink-0">
+            <div class="shrink-0 flex flex-col items-center gap-2">
+                {{-- Consensus bet (admin/winamax) --}}
+                @if ($canSeeConsensus)
+                    <div class="flex flex-wrap items-center justify-center gap-1">
+                        @if ($totalBets === 0)
+                            <span class="text-xs text-base-content/30 italic">No bets yet</span>
+                        @else
+                            <span class="text-xs text-base-content/40 me-0.5">Consensus</span>
+                            @foreach ($topBetResults as $top)
+                                <span class="badge badge-sm font-mono gap-1 {{ $top['result']->badgeClass() }}">
+                                    <x-icon name="{{ $top['result']->icon() }}" class="w-3 h-3" />
+                                    {{ $top['score'] }}
+                                    <span class="opacity-60 text-xs">×{{ $top['count'] }}</span>
+                                </span>
+                            @endforeach
+                        @endif
+                    </div>
+                @endif
                 <livewire:place-bet :game="$game" :key="'desk-bet-'.$game->id" />
             </div>
         </div>

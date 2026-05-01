@@ -9,7 +9,7 @@
     </div>
 
     {{-- DESKTOP: 2-column grid --}}
-    <div class="hidden md:grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div class="hidden md:grid md:grid-cols-2 xl:grid-cols-2 gap-6">
         @foreach ($standings as $standing)
             <livewire:group :standing="$standing" :key="'desk-'.$standing->id" />
         @endforeach

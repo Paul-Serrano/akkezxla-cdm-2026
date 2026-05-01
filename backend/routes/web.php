@@ -1,8 +1,10 @@
 <?php
 
 use App\Livewire\Admin\CreateUser;
+use App\Livewire\Admin\EditConfig;
 use App\Livewire\Auth\Login;
 use App\Livewire\MatchDay;
+use App\Livewire\Ranking;
 use App\Livewire\Standings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -28,6 +30,15 @@ Route::post('/logout', function () {
 Route::get('/admin/users', CreateUser::class)
     ->middleware('auth')
     ->name('admin.users');
+
+Route::get('/admin/config', EditConfig::class)
+    ->middleware('auth')
+    ->name('admin.config');
+
+// Restricted
+Route::get('/ranking', Ranking::class)
+    ->middleware('auth')
+    ->name('ranking');
 
 /**
  * Temporary diagnostic route — remove before production.
