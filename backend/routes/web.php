@@ -3,6 +3,7 @@
 use App\Livewire\Admin\CreateUser;
 use App\Livewire\Admin\EditConfig;
 use App\Livewire\Auth\Login;
+use App\Livewire\EditProfile;
 use App\Livewire\MatchDay;
 use App\Livewire\Ranking;
 use App\Livewire\Standings;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', Standings::class);
 Route::get('/matchday', MatchDay::class);
-Route::get('/matchday/{day}', MatchDay::class);
+Route::get('/matchday/{matchday}', MatchDay::class);
 
 // Auth
 Route::middleware('guest')->group(function () {
@@ -34,6 +35,10 @@ Route::get('/admin/users', CreateUser::class)
 Route::get('/admin/config', EditConfig::class)
     ->middleware('auth')
     ->name('admin.config');
+
+Route::get('/profile', EditProfile::class)
+    ->middleware('auth')
+    ->name('profile');
 
 // Restricted
 Route::get('/ranking', Ranking::class)

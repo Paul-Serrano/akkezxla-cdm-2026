@@ -11,9 +11,27 @@ class MatchDay extends Component
 {
     public int $matchday;
 
-    public function mount(int $matchday = 1): void
+    public function mount(?int $matchday = null): void
     {
-        $this->matchday = $matchday;
+        if ($matchday !== null) {
+            $this->matchday = $matchday;
+            return;
+        }
+
+        // Default: first day that still has at least one unplayed game.
+        // Fall back to the last day if everything is already played.
+        $groups = Game::orderBy('startDate')
+            ->get()
+            ->groupBy(fn ($g) => \Carbon\Carbon::parse($g->startDate)->toDateString())
+            ->values();
+
+        $this->matchday = $groups->count() ?: 1; // fallback = last day
+        foreach ($groups as $index => $dayGames) {
+            if ($dayGames->whereNull('scoreHome')->isNotEmpty()) {
+                $this->matchday = $index + 1;
+                break;
+            }
+        }
     }
 
     public function render()

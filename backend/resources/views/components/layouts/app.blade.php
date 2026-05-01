@@ -49,7 +49,7 @@
                         </x-menu-sub>
                         <x-menu-separator />
                     @endif
-                    <x-menu-item title="{{ Auth::user()->alias }}" icon="o-user-circle" />
+                    <x-menu-item title="{{ Auth::user()->alias }}" icon="o-user-circle" link="{{ route('profile') }}" />
                     <x-badge :value="ucfirst(Auth::user()->role)" class="mx-4 mb-1 badge-sm
                         {{ Auth::user()->role === 'admin' ? 'badge-error' : (Auth::user()->role === 'winamax' ? 'badge-warning' : 'badge-ghost') }}" />
                     <li>
