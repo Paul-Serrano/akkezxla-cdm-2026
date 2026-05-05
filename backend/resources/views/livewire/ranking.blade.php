@@ -34,6 +34,7 @@
             <button
                 wire:click="$set('filterRole', '{{ $r->name }}')"
                 @class(['btn btn-sm gap-1 transition-all', 'btn-neutral shadow-md' => $filterRole === $r->name, 'btn-ghost text-base-content/60' => $filterRole !== $r->name])
+                style="background-color: {{ $r->color ?? '#000' }}; color: #fff;"
             >
                 {{ $r->label }}
             </button>
@@ -125,7 +126,6 @@
                             <span @class(['font-semibold', 'text-base-content' => $col !== 'alias', 'font-black underline' => $col === 'alias'])>
                                 {{ $row['alias'] }}
                             </span>
-                            <span class="badge badge-xs badge-ghost ms-1">{{ $row['role'] }}</span>
                         </td>
                     </tr>
                 @empty

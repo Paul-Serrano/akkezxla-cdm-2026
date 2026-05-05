@@ -87,6 +87,8 @@ class MatchDay extends Component
         // Games are ordered by date; we paginate by startDate buckets.
         // Since the DB has no matchday column we derive it by ordering date.
         $games = Game::with(['homeTeam.standing', 'awayTeam.standing'])
+            ->whereNotNull('homeTeamId')
+            ->whereNotNull('awayTeamId')
             ->orderBy('startDate')
             ->get()
             ->groupBy(fn ($g) => \Carbon\Carbon::parse($g->startDate)->toDateString())

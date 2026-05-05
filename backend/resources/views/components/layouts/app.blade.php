@@ -51,8 +51,7 @@
                     <x-menu-item title="{{ Auth::user()->alias }}" icon="o-user-circle" link="{{ route('profile') }}" />
                     <div class="flex flex-wrap gap-1 mx-4 mb-1">
                         @foreach (Auth::user()->roles->sortBy('label') as $r)
-                            <x-badge :value="$r->label" class="badge-sm
-                                {{ $r->name === 'admin' ? 'badge-error' : ($r->name === 'winamax' ? 'badge-warning' : 'badge-ghost') }}" />
+                            <x-badge :value="$r->label" class="badge-sm" style="background-color: {{ $r->color ?? '#000' }}; color: #fff;" />
                         @endforeach
                     </div>
                     <li>

@@ -17,8 +17,9 @@ return new class extends Migration
             $table->timestampTz('startDate');
             $table->integer('scoreHome')->nullable();
             $table->integer('scoreAway')->nullable();
-            $table->foreignId('homeTeamId')->constrained('team');
-            $table->foreignId('awayTeamId')->constrained('team');
+            $table->foreignId('homeTeamId')->nullable()->constrained('team');
+            $table->foreignId('awayTeamId')->nullable()->constrained('team');
+            $table->string('stage')->nullable();
         });
     }
 

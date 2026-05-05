@@ -33,13 +33,13 @@ Route::get('/admin/users', CreateUser::class)
     ->middleware('auth')
     ->name('admin.users');
 
-Route::get('/admin/roles', ManageRoles::class)
-    ->middleware('auth')
-    ->name('admin.roles');
-
 Route::get('/admin/config', EditConfig::class)
     ->middleware('auth')
     ->name('admin.config');
+
+Route::get('/admin/roles', ManageRoles::class)
+    ->middleware('auth')
+    ->name('admin.roles');
 
 Route::get('/profile', EditProfile::class)
     ->middleware('auth')

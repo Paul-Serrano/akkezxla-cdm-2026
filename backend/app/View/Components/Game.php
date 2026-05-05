@@ -35,7 +35,7 @@ class Game extends Component
         $this->awayRank = $this->away->rank;
 
         $this->canSeeConsensus = auth()->check()
-            && (auth()->user()->isAdmin() || auth()->user()->isWinamax());
+            && (auth()->user()->isAkkezxla());
 
         $this->consensus = $this->canSeeConsensus
             ? $game->consensus()

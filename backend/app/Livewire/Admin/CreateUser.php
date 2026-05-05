@@ -143,7 +143,7 @@ class CreateUser extends Component
     public function render()
     {
         $users = User::with('roles')->orderBy('name')->get(['id', 'name', 'alias', 'email']);
-        $allRoles = Role::orderBy('label')->get(['name', 'label']);
+        $allRoles = Role::orderBy('label')->get(['name', 'label', 'color']);
 
         return view('livewire.admin.create-user', compact('users', 'allRoles'));
     }

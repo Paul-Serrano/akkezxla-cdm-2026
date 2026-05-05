@@ -42,7 +42,7 @@ class RankingTestSeeder extends Seeder
                     'name'     => $info[0],
                     'alias'    => $alias,
                     'password' => Hash::make($info[1]),
-                    'role'     => User::ROLE_WINAMAX,
+                    'role'     => User::ROLE_AKKEZXLA,
                 ]
             );
         }

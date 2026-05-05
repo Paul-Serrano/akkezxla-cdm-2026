@@ -46,7 +46,7 @@
                                         value="{{ $r->name }}"
                                         wire:model="editRoles"
                                     />
-                                    <span class="text-sm">{{ $r->label }}</span>
+                                    <span class="text-sm col" style="color: {{ $r->color ?? '#000' }}">{{ $r->label }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -82,7 +82,7 @@
                                         value="{{ $r->name }}"
                                         wire:model="roles"
                                     />
-                                    <span class="text-sm">{{ $r->label }}</span>
+                                    <x-badge class="text-sm" style="background-color: {{ $r->color ?? '#000' }}; color: #fff;">{{ $r->label }}</x-badge>
                                 </label>
                             @endforeach
                         </div>
@@ -118,7 +118,7 @@
                                     default   => 'badge-ghost',
                                 };
                             @endphp
-                            <x-badge :value="$r->label" class="{{ $cls }} badge-sm" />
+                            <x-badge :value="$r->label" class="{{ $cls }} badge-sm" style="background-color: {{ $r->color ?? '#000' }}; color: #fff;" />
                         @endforeach
                     </div>
                 @endscope

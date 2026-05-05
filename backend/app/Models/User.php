@@ -20,8 +20,9 @@ class User extends Authenticatable
     protected $fillable = ['name', 'email', 'alias', 'password'];
 
     const ROLE_ADMIN   = 'admin';
-    const ROLE_WINAMAX = 'winamax';
     const ROLE_REGULAR = 'regular';
+    const ROLE_AKKEZXLA = 'akkezxla';
+    const ROLE_USPEG = 'uspeg';
 
     public function roles(): BelongsToMany
     {
@@ -38,9 +39,14 @@ class User extends Authenticatable
         return $this->hasRole(self::ROLE_ADMIN);
     }
 
-    public function isWinamax(): bool
+    public function isAkkezxla(): bool
     {
-        return $this->hasRole(self::ROLE_WINAMAX);
+        return $this->hasRole(self::ROLE_AKKEZXLA);
+    }
+
+    public function isUspeg(): bool
+    {
+        return $this->hasRole(self::ROLE_USPEG);
     }
 
     protected function casts(): array

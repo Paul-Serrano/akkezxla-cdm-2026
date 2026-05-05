@@ -49,10 +49,7 @@ class Ranking extends Component
 
         // Group bets by user
         // Winamax users only see other winamax/admin — admin sees everyone
-        $baseQuery = Auth::user()->isAdmin()
-            ? User::with('roles')
-            : User::whereHas('roles', fn($q) => $q->whereIn('name', [User::ROLE_WINAMAX, User::ROLE_ADMIN]))->with('roles');
-
+        $baseQuery = User::with('roles');
         if ($this->filterRole !== '') {
             $baseQuery->whereHas('roles', fn($q) => $q->where('name', $this->filterRole));
         }
@@ -110,7 +107,7 @@ class Ranking extends Component
             'ptsSuperWin' => $ptsSuperWin,
             'ptsWin'      => $ptsWin,
             'ptsScorer'   => Config::get(ConfigKey::PointsScorer),
-            'allRoles'    => Role::orderBy('label')->get(['name', 'label']),
+            'allRoles'    => Role::orderBy('label')->get(['name', 'label', 'color']),
             'currentUserId' => Auth::id(),
         ]);
     }

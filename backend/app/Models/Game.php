@@ -40,7 +40,7 @@ class Game extends Model
      *     'outcomes' => Collection of ['label' => string, 'count' => int, 'result' => BetResult],
      *   ]
      */
-    public function consensus(array $roles = [User::ROLE_WINAMAX]): array
+    public function consensus(array $roles = [User::ROLE_AKKEZXLA]): array
     {
         $bets = Bet::whereHas('user', fn($q) => $q->whereHas('roles', fn($r) => $r->whereIn('name', $roles)))
             ->where('gameId', $this->id)
