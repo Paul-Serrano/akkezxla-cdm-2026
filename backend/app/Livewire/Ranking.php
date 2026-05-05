@@ -7,6 +7,7 @@ use App\Enums\ConfigKey;
 use App\Models\Bet;
 use App\Models\Config;
 use App\Models\Game;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -17,6 +18,7 @@ class Ranking extends Component
 {
     public string $sortBy = 'points';
     public string $sortDir = 'desc';
+    public string $filterRole = '';
 
     /** Toggle sort column; if same column, flip direction. */
     public function sort(string $column): void
@@ -52,9 +54,15 @@ class Ranking extends Component
 
         // Group bets by user
         // Winamax users only see other winamax/admin — admin sees everyone
-        $users = Auth::user()->isAdmin()
-            ? User::all()->keyBy('id')
-            : User::whereIn('role', [User::ROLE_WINAMAX, User::ROLE_ADMIN])->get()->keyBy('id');
+        $baseQuery = Auth::user()->isAdmin()
+            ? User::with('roles')
+            : User::whereHas('roles', fn($q) => $q->whereIn('name', [User::ROLE_WINAMAX, User::ROLE_ADMIN]))->with('roles');
+
+        if ($this->filterRole !== '') {
+            $baseQuery->whereHas('roles', fn($q) => $q->where('name', $this->filterRole));
+        }
+
+        $users = $baseQuery->get()->keyBy('id');
 
         $rows = $users->map(function (User $user) use ($bets, $ptsSuperWin, $ptsWin) {
             $userBets    = $bets->where('userId', $user->id);
@@ -82,7 +90,7 @@ class Ranking extends Component
             return [
                 'id'           => $user->id,
                 'alias'        => $user->alias,
-                'role'         => $user->role,
+                'role'         => $user->roles->pluck('label')->join(', '),
                 'bets'         => $betCount,
                 'superWins'    => $superWins,
                 'wins'         => $wins,
@@ -107,6 +115,8 @@ class Ranking extends Component
             'ptsSuperWin' => $ptsSuperWin,
             'ptsWin'      => $ptsWin,
             'ptsScorer'   => Config::get(ConfigKey::PointsScorer),
+            'allRoles'    => Role::orderBy('label')->get(['name', 'label']),
+            'currentUserId' => Auth::id(),
         ]);
     }
 }

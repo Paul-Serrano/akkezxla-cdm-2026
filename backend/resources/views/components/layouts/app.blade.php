@@ -45,13 +45,18 @@
                     @if (Auth::user()->isAdmin())
                         <x-menu-sub title="Admin" icon="o-cog-6-tooth">
                             <x-menu-item title="Users" icon="o-users" link="{{ route('admin.users') }}" />
+                            <x-menu-item title="Roles" icon="o-shield-check" link="{{ route('admin.roles') }}" />
                             <x-menu-item title="Config" icon="o-adjustments-horizontal" link="{{ route('admin.config') }}" />
                         </x-menu-sub>
                         <x-menu-separator />
                     @endif
                     <x-menu-item title="{{ Auth::user()->alias }}" icon="o-user-circle" link="{{ route('profile') }}" />
-                    <x-badge :value="ucfirst(Auth::user()->role)" class="mx-4 mb-1 badge-sm
-                        {{ Auth::user()->role === 'admin' ? 'badge-error' : (Auth::user()->role === 'winamax' ? 'badge-warning' : 'badge-ghost') }}" />
+                    <div class="flex flex-wrap gap-1 mx-4 mb-1">
+                        @foreach (Auth::user()->roles->sortBy('label') as $r)
+                            <x-badge :value="$r->label" class="badge-sm
+                                {{ $r->name === 'admin' ? 'badge-error' : ($r->name === 'winamax' ? 'badge-warning' : 'badge-ghost') }}" />
+                        @endforeach
+                    </div>
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

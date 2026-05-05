@@ -12,3 +12,8 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Highlight the current user's row in the ranking table, overriding table-zebra td backgrounds */
+.current-user-row > td {
+    background-color: color-mix(in oklch, var(--color-primary, oklch(0.6 0.2 250)) 12%, transparent) !important;
+}

@@ -21,6 +21,25 @@
         ];
     @endphp
 
+    {{-- Role filter --}}
+    <div class="flex flex-wrap gap-2 mb-3">
+        <button
+            wire:click="$set('filterRole', '')"
+            @class(['btn btn-sm gap-1 transition-all', 'btn-neutral shadow-md' => $filterRole === '', 'btn-ghost text-base-content/60' => $filterRole !== ''])
+        >
+            <x-icon name="o-users" class="w-4 h-4" />
+            All
+        </button>
+        @foreach ($allRoles as $r)
+            <button
+                wire:click="$set('filterRole', '{{ $r->name }}')"
+                @class(['btn btn-sm gap-1 transition-all', 'btn-neutral shadow-md' => $filterRole === $r->name, 'btn-ghost text-base-content/60' => $filterRole !== $r->name])
+            >
+                {{ $r->label }}
+            </button>
+        @endforeach
+    </div>
+
     {{-- Sort selector (shared, above both layouts) --}}
     <div class="flex flex-wrap gap-2 mb-4">
         @foreach ($columns as $key => $meta)
@@ -72,6 +91,7 @@
                 @forelse ($rows as $row)
                     <tr @class([
                         'bg-amber-50 dark:bg-amber-900/10' => $row['rank'] === 1 && $row['points'] > 0,
+                        'current-user-row' => $row['id'] === $currentUserId,
                     ])>
                         <td>
                             @if ($row['rank'] === 1 && $row['points'] > 0)
@@ -125,7 +145,8 @@
             <div @class([
                 'card card-compact bg-base-100 shadow border-2 transition-colors',
                 'border-amber-400' => $row['rank'] === 1 && $row['points'] > 0,
-                'border-base-200'  => !($row['rank'] === 1 && $row['points'] > 0),
+                'border-primary'   => $row['id'] === $currentUserId && !($row['rank'] === 1 && $row['points'] > 0),
+                'border-base-200'  => $row['id'] !== $currentUserId && !($row['rank'] === 1 && $row['points'] > 0),
             ])>
                 <div class="card-body">
                     <div class="flex items-center justify-between">
@@ -136,7 +157,9 @@
                                 <span class="text-2xl font-black tabular-nums text-base-content/25 w-8 shrink-0">#{{ $row['rank'] }}</span>
                             @endif
                             <div>
-                                <p class="font-bold leading-tight">{{ $row['alias'] }}</p>
+                                <p class="font-bold leading-tight">
+                                    {{ $row['alias'] }}
+                                </p>
                                 <span class="badge badge-xs badge-ghost">{{ $row['role'] }}</span>
                             </div>
                         </div>

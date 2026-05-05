@@ -2,6 +2,7 @@
 
 use App\Livewire\Admin\CreateUser;
 use App\Livewire\Admin\EditConfig;
+use App\Livewire\Admin\ManageRoles;
 use App\Livewire\Auth\Login;
 use App\Livewire\EditProfile;
 use App\Livewire\MatchDay;
@@ -31,6 +32,10 @@ Route::post('/logout', function () {
 Route::get('/admin/users', CreateUser::class)
     ->middleware('auth')
     ->name('admin.users');
+
+Route::get('/admin/roles', ManageRoles::class)
+    ->middleware('auth')
+    ->name('admin.roles');
 
 Route::get('/admin/config', EditConfig::class)
     ->middleware('auth')
