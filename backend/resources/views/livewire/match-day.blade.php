@@ -1,4 +1,4 @@
-<div>
+<div x-on:bet-placed.window="$wire.refreshGames()">
     {{-- Header with day navigation --}}
     <x-header separator>
         <x-slot:title>
@@ -45,10 +45,41 @@
         </div>
 
         {{-- DESKTOP: single column centered, wider cards --}}
-        <div class="hidden md:flex flex-col gap-4 max-w-3xl mx-auto">
+        <div class="hidden md:flex flex-col gap-4 mx-auto">
             @foreach ($games as $game)
                 <x-game :game="$game" />
             @endforeach
         </div>
+    @endif
+
+    {{-- Admin: edit score modal --}}
+    @if ($editGameId)
+        <dialog class="modal modal-open">
+            <div class="modal-box max-w-xs">
+                <h3 class="font-bold text-lg mb-4">Update Score</h3>
+                <div class="flex items-center justify-center gap-4">
+                    <input
+                        type="number"
+                        wire:model="editScoreHome"
+                        min="0" max="99"
+                        class="input input-bordered w-20 text-center text-2xl font-bold"
+                    />
+                    <span class="text-2xl font-light text-base-content/40">—</span>
+                    <input
+                        type="number"
+                        wire:model="editScoreAway"
+                        min="0" max="99"
+                        class="input input-bordered w-20 text-center text-2xl font-bold"
+                    />
+                </div>
+                @error('editScoreHome') <p class="text-error text-xs mt-2">{{ $message }}</p> @enderror
+                @error('editScoreAway') <p class="text-error text-xs mt-2">{{ $message }}</p> @enderror
+                <div class="modal-action">
+                    <x-button label="Cancel" wire:click="cancelEditScore" />
+                    <x-button label="Save" class="btn-primary" wire:click="saveScore" />
+                </div>
+            </div>
+            <div class="modal-backdrop" wire:click="cancelEditScore"></div>
+        </dialog>
     @endif
 </div>

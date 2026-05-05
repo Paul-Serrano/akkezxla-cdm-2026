@@ -33,11 +33,6 @@ class Ranking extends Component
 
     public function render()
     {
-        abort_unless(
-            Auth::check() && (Auth::user()->isAdmin() || Auth::user()->isWinamax()),
-            403
-        );
-
         $ptsSuperWin = Config::get(ConfigKey::PointsSuperWin);
         $ptsWin      = Config::get(ConfigKey::PointsWin);
 

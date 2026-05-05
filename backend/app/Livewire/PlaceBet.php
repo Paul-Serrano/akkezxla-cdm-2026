@@ -62,6 +62,7 @@ class PlaceBet extends Component
         );
 
         $this->saved = true;
+        $this->dispatch('bet-placed');
     }
 
     public function render()

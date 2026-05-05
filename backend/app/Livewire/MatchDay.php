@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Game;
+use App\Models\Standing;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -10,6 +11,12 @@ use Livewire\Component;
 class MatchDay extends Component
 {
     public int $matchday;
+
+    public ?int $editGameId = null;
+    public ?int $editScoreHome = null;
+    public ?int $editScoreAway = null;
+
+    public $saved;
 
     public function mount(?int $matchday = null): void
     {
@@ -32,6 +39,47 @@ class MatchDay extends Component
                 break;
             }
         }
+    }
+
+    public function refreshGames(): void {}
+
+    public function startEditScore(int $gameId): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
+        $game = Game::findOrFail($gameId);
+        $this->editGameId    = $gameId;
+        $this->editScoreHome = $game->scoreHome;
+        $this->editScoreAway = $game->scoreAway;
+    }
+
+    public function cancelEditScore(): void
+    {
+        $this->editGameId    = null;
+        $this->editScoreHome = null;
+        $this->editScoreAway = null;
+    }
+
+    public function saveScore(): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
+        $this->validate([
+            'editScoreHome' => 'required|integer|min:0|max:99',
+            'editScoreAway' => 'required|integer|min:0|max:99',
+        ]);
+
+        Game::findOrFail($this->editGameId)->update([
+            'scoreHome' => $this->editScoreHome,
+            'scoreAway' => $this->editScoreAway,
+        ]);
+
+        $game = Game::with('homeTeam')->findOrFail($this->editGameId);
+        if ($game->homeTeam->standingId) {
+            Standing::recalculate($game->homeTeam->standingId);
+        }
+
+        $this->cancelEditScore();
     }
 
     public function render()

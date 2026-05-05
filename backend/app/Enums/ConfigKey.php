@@ -25,7 +25,7 @@ enum ConfigKey: string
             self::PointsSuperWin => 'Awarded when the user guesses the exact scoreline',
             self::PointsWin      => 'Awarded when the user guesses the right outcome (win/draw/loss)',
             self::PointsScorer   => 'Awarded per correctly predicted goal scorer',
-            self::TotalPlayerBet => 'How many goal scorers a user can bet on per game',
+            self::TotalPlayerBet => 'How many goal scorers a user can bet on',
         };
     }
 

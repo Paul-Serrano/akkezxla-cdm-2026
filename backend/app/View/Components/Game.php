@@ -20,6 +20,7 @@ class Game extends Component
     public ?int $awayRank;
     public bool $canSeeConsensus;
     public array $consensus;
+    public bool $isAdmin;
 
     public function __construct(public GameModel $game)
     {
@@ -39,6 +40,8 @@ class Game extends Component
         $this->consensus = $this->canSeeConsensus
             ? $game->consensus()
             : ['total' => 0, 'outcomes' => collect()];
+
+        $this->isAdmin = auth()->check() && auth()->user()->isAdmin();
     }
 
     public function render()

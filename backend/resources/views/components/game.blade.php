@@ -2,8 +2,13 @@
 
 {{-- MOBILE --}}
 <div class="block md:hidden">
-    <div class="card card-compact bg-base-100 shadow border border-base-200 w-full">
+    <div class="card card-compact bg-base-100 shadow border border-base-200 w-full relative">
         <div class="card-body">
+            @if ($isAdmin)
+                <button wire:click="startEditScore({{ $game->id }})" class="btn btn-xs btn-ghost absolute top-1 left-1 z-10 opacity-40 hover:opacity-100">
+                    <x-icon name="o-pencil-square" class="w-3 h-3" />
+                </button>
+            @endif
             <div class="flex items-center justify-center gap-2 mb-1">
                 @if ($group)
                     <span class="text-xs font-medium badge badge-xs badge-info">Groupe {{ $group }}</span>
@@ -16,10 +21,7 @@
                 {{-- Home --}}
                 <div class="flex flex-col items-center gap-1 flex-1">
                     <img src="{{ $home->crest }}" alt="{{ $home->shortName }}" class="w-10 h-10 object-contain" />
-                    <span class="text-xs font-medium text-center leading-tight">{{ $home->shortName }}</span>
-                    @if ($homeRank)
-                        <span class="text-xs text-base-content/40">#{{ $homeRank }}</span>
-                    @endif
+                    <span class="text-xs font-medium text-center leading-tight">{{ $homeRank ? '#' . $homeRank . ' -' : '' }} {{ $home->shortName }}</span>
                 </div>
                 {{-- Score --}}
                 <div class="flex items-center gap-1">
@@ -34,10 +36,7 @@
                 {{-- Away --}}
                 <div class="flex flex-col items-center gap-1 flex-1">
                     <img src="{{ $away->crest }}" alt="{{ $away->shortName }}" class="w-10 h-10 object-contain" />
-                    <span class="text-xs font-medium text-center leading-tight">{{ $away->shortName }}</span>
-                    @if ($awayRank)
-                        <span class="text-xs text-base-content/40">#{{ $awayRank }}</span>
-                    @endif
+                    <span class="text-xs font-medium text-center leading-tight">{{ $awayRank ? '#' . $awayRank . ' -' : '' }} {{ $away->shortName }}</span>
                 </div>
             </div>
             <div class="divider my-0"></div>
@@ -65,8 +64,13 @@
 
 {{-- DESKTOP --}}
 <div class="hidden md:block">
-    <div class="card bg-base-100 shadow border border-base-200 w-full">
+    <div class="card bg-base-100 shadow border border-base-200 w-full relative">
         <div class="card-body flex-row items-center gap-4 py-4 px-6">
+            @if ($isAdmin)
+                <button wire:click="startEditScore({{ $game->id }})" class="btn btn-xs btn-ghost top-1 left-1 z-10 opacity-40 hover:opacity-100">
+                    <x-icon name="o-pencil-square" class="w-3 h-3" />
+                </button>
+            @endif
             {{-- Home --}}
             <div>
             @if ($group)
@@ -75,10 +79,7 @@
             </div>
             <div class="flex items-center gap-3 flex-1 justify-end">
                 <div class="flex flex-col items-end">
-                    <span class="font-semibold text-right">{{ $home->name }}</span>
-                    @if ($home->rank)
-                        <span class="text-xs text-base-content/40">#{{ $home->rank }}</span>
-                    @endif
+                    <span class="font-semibold text-right">{{ $homeRank ? '#' . $homeRank . ' -' : '' }} {{ $home->name }}</span>
                 </div>
                 <img src="{{ $home->crest }}" alt="{{ $home->shortName }}" class="w-10 h-10 object-contain" />
             </div>
@@ -101,10 +102,7 @@
             <div class="flex items-center gap-3 flex-1 justify-start">
                 <img src="{{ $away->crest }}" alt="{{ $away->shortName }}" class="w-10 h-10 object-contain" />
                 <div class="flex flex-col items-start">
-                    <span class="font-semibold">{{ $away->name }}</span>
-                    @if ($awayRank)
-                        <span class="text-xs text-base-content/40">#{{ $awayRank }}</span>
-                    @endif
+                    <span class="font-semibold">{{ $awayRank ? '#' . $awayRank . ' -' : '' }} {{ $away->name }}</span>
                 </div>
             </div>
             {{-- Bet --}}

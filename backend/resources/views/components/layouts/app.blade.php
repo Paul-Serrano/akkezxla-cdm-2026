@@ -36,9 +36,7 @@
                 <x-menu-item title="Standings" icon="o-table-cells" link="/" />
                 <x-menu-item title="Match Day" icon="o-calendar-days" link="/matchday" />
                 @auth
-                    @if (Auth::user()->isAdmin() || Auth::user()->isWinamax())
                         <x-menu-item title="Ranking" icon="o-trophy" link="{{ route('ranking') }}" />
-                    @endif
                 @endauth
                 <x-menu-separator />
                 @auth
