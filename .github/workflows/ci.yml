@@ -49,6 +49,7 @@ jobs:
             echo "SESSION_DRIVER=array"
             echo "QUEUE_CONNECTION=sync"
           } >> .env
+          php artisan migrate --force
 
       - name: Run tests
         run: composer test
