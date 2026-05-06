@@ -41,15 +41,11 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
-          touch database/database.sqlite
           {
-            echo "DB_CONNECTION=sqlite"
-            echo "DB_DATABASE=database/database.sqlite"
             echo "CACHE_STORE=array"
             echo "SESSION_DRIVER=array"
             echo "QUEUE_CONNECTION=sync"
           } >> .env
-          php artisan migrate --force
 
       - name: Run tests
         run: composer test
