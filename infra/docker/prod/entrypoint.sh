@@ -23,6 +23,12 @@ if [ "$run_migrations" = "true" ]; then
   php artisan migrate --force
 fi
 
+# Optional one-shot data bootstrap for fresh environments.
+if [ "${RUN_IMPORTS:-false}" = "true" ]; then
+  php artisan import:teams
+  php artisan import:games
+fi
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
