@@ -41,6 +41,9 @@ WORKDIR /app
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci
 COPY backend/ ./
+# Tailwind sources include vendor blade/php files (Laravel + Mary), so vendor
+# must exist when building assets.
+COPY --from=vendor /var/www/html/vendor ./vendor
 RUN npm run build
 
 FROM php-base AS runtime

@@ -23,6 +23,15 @@ if [ "$run_migrations" = "true" ]; then
   php artisan migrate --force
 fi
 
+# Optional seeding hook for deploy-time data setup.
+if [ "${RUN_SEEDER:-false}" = "true" ]; then
+  if [ -n "${SEEDER_CLASS:-}" ]; then
+    php artisan db:seed --class="$SEEDER_CLASS" --force
+  else
+    php artisan db:seed --force
+  fi
+fi
+
 # Optional one-shot data bootstrap for fresh environments.
 if [ "${RUN_IMPORTS:-false}" = "true" ]; then
   php artisan import:teams
