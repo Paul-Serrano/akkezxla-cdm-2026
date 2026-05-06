@@ -50,6 +50,13 @@ Route::get('/ranking', Ranking::class)
     ->middleware('auth')
     ->name('ranking');
 
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'time' => now()
+    ]);
+});
+
 /**
  * Temporary diagnostic route — remove before production.
  * Probes The Odds API for FIFA World Cup 2026 data.
