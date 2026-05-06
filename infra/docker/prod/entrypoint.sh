@@ -13,7 +13,13 @@ mkdir -p \
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R ug+rwx storage bootstrap/cache
 
-if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
+# On Render, default to running migrations unless explicitly disabled.
+run_migrations="${RUN_MIGRATIONS:-}"
+if [ -n "${PORT:-}" ] && [ -z "$run_migrations" ]; then
+  run_migrations="true"
+fi
+
+if [ "$run_migrations" = "true" ]; then
   php artisan migrate --force
 fi
 
