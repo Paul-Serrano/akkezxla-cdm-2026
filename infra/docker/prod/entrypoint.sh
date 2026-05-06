@@ -21,4 +21,9 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
+# Render expects an HTTP server bound to 0.0.0.0:$PORT.
+if [ -n "${PORT:-}" ]; then
+  exec php artisan serve --host=0.0.0.0 --port="$PORT"
+fi
+
 exec php-fpm
