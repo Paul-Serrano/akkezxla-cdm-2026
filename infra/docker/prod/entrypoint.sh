@@ -4,7 +4,12 @@ set -e
 cd /var/www/html
 
 # Ensure runtime-writable directories exist with expected permissions.
-mkdir -p storage bootstrap/cache
+mkdir -p \
+  storage/framework/cache \
+  storage/framework/sessions \
+  storage/framework/views \
+  storage/logs \
+  bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R ug+rwx storage bootstrap/cache
 
