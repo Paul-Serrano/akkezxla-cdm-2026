@@ -47,6 +47,11 @@ jobs:
             echo "QUEUE_CONNECTION=sync"
           } >> .env
 
+      - name: Build frontend assets
+        run: |
+          npm ci
+          npm run build
+
       - name: Run tests
         run: composer test
 
