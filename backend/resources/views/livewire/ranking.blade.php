@@ -25,7 +25,7 @@
     <div class="flex flex-wrap gap-2 mb-3">
         <button
             wire:click="$set('filterRole', '')"
-            @class(['btn btn-sm gap-1 transition-all', 'btn-neutral shadow-md' => $filterRole === '', 'btn-ghost text-base-content/60' => $filterRole !== ''])
+            @class(['btn btn-sm gap-1 transition-all', 'btn-neutral shadow-md' => $filterRole === '', 'btn-outline' => $filterRole !== ''])
         >
             <x-icon name="o-users" class="w-4 h-4" />
             All
@@ -33,8 +33,8 @@
         @foreach ($allRoles as $r)
             <button
                 wire:click="$set('filterRole', '{{ $r->name }}')"
-                @class(['btn btn-sm gap-1 transition-all', 'btn-neutral shadow-md' => $filterRole === $r->name, 'btn-ghost text-base-content/60' => $filterRole !== $r->name])
-                style="background-color: {{ $r->color ?? '#000' }}; color: #fff;"
+                @class(['btn btn-sm gap-1 transition-all border-2', 'shadow-md text-white' => $filterRole === $r->name, 'btn-outline' => $filterRole !== $r->name])
+                style="{{ $filterRole === $r->name ? 'background-color: ' . ($r->color ?? '#000') . '; border-color: ' . ($r->color ?? '#000') . '; color: #fff;' : 'background-color: transparent; border-color: ' . ($r->color ?? '#000') . '; color: ' . ($r->color ?? '#000') . ';' }}"
             >
                 {{ $r->label }}
             </button>
@@ -49,7 +49,7 @@
                 @class([
                     'btn btn-sm gap-1 transition-all',
                     'btn-neutral shadow-md'  => $col === $key,
-                    'btn-ghost text-base-content/60' => $col !== $key,
+                    'btn-outline' => $col !== $key,
                 ])
             >
                 <x-icon name="{{ $meta['icon'] }}" @class(['w-4 h-4', $meta['color'] => $col === $key]) />

@@ -31,9 +31,9 @@
         <x-card :title="$editing ? 'Edit user' : 'Create user'" shadow>
             @if ($editing)
                 <x-form wire:submit="updateUser">
-                    <x-input label="Full name"    wire:model="editName"  placeholder="Jane Doe"          icon="o-user" />
-                    <x-input label="Alias"        wire:model="editAlias" placeholder="janedoe"           icon="o-at-symbol" />
-                    <x-input label="Email"        wire:model="editEmail" type="email" placeholder="jane@example.com" icon="o-envelope" />
+                    <x-input label="Full name"    wire:model="editName"  placeholder="Jane Doe"          icon="o-user" class="w-full" />
+                    <x-input label="Alias"        wire:model="editAlias" placeholder="janedoe"           icon="o-at-symbol" class="w-full" />
+                    <x-input label="Email"        wire:model="editEmail" type="email" placeholder="jane@example.com" icon="o-envelope" class="w-full" />
 
                     <div>
                         <label class="label"><span class="label-text font-medium">Roles</span></label>
@@ -55,8 +55,8 @@
                     </div>
 
                     <div class="divider text-xs text-base-content/40">Password reset (leave blank to keep current)</div>
-                    <x-input label="New password"         wire:model="editPassword"              type="password" placeholder="Min. 8 characters" icon="o-lock-closed" />
-                    <x-input label="Confirm new password" wire:model="editPassword_confirmation" type="password" placeholder="Repeat new password" icon="o-lock-closed" />
+                    <x-input label="New password"         wire:model="editPassword"              type="password" placeholder="Min. 8 characters" icon="o-lock-closed" class="w-full" />
+                    <x-input label="Confirm new password" wire:model="editPassword_confirmation" type="password" placeholder="Repeat new password" icon="o-lock-closed" class="w-full" />
 
                     <x-slot:actions>
                         <x-button label="Cancel"       wire:click="cancelEdit" class="btn-ghost"   icon="o-x-mark" />
@@ -65,11 +65,11 @@
                 </x-form>
             @else
                 <x-form wire:submit="create">
-                    <x-input label="Full name"       wire:model="name"                  placeholder="Jane Doe"          icon="o-user" />
-                    <x-input label="Alias"           wire:model="alias"                 placeholder="janedoe"           icon="o-at-symbol" />
-                    <x-input label="Email"           wire:model="email"                 type="email" placeholder="jane@example.com" icon="o-envelope" />
-                    <x-input label="Password"        wire:model="password"              type="password" placeholder="Min. 8 characters" icon="o-lock-closed" />
-                    <x-input label="Confirm password" wire:model="password_confirmation" type="password" placeholder="Repeat password" icon="o-lock-closed" />
+                    <x-input label="Full name"       wire:model="name"                  placeholder="Jane Doe"          icon="o-user" class="w-full" />
+                    <x-input label="Alias"           wire:model="alias"                 placeholder="janedoe"           icon="o-at-symbol" class="w-full" />
+                    <x-input label="Email"           wire:model="email"                 type="email" placeholder="jane@example.com" icon="o-envelope" class="w-full" />
+                    <x-input label="Password"        wire:model="password"              type="password" placeholder="Min. 8 characters" icon="o-lock-closed" class="w-full" />
+                    <x-input label="Confirm password" wire:model="password_confirmation" type="password" placeholder="Repeat password" icon="o-lock-closed" class="w-full" />
 
                     <div>
                         <label class="label"><span class="label-text font-medium">Roles</span></label>
@@ -99,39 +99,41 @@
 
         {{-- User list --}}
         <x-card title="All users" shadow>
-            <x-table
-                :headers="[
-                    ['key' => 'name',    'label' => 'Name'],
-                    ['key' => 'alias',   'label' => 'Alias'],
-                    ['key' => 'roles',   'label' => 'Roles'],
-                    ['key' => 'actions', 'label' => ''],
-                ]"
-                :rows="$users"
-            >
-                @scope('cell_roles', $user)
-                    <div class="flex flex-wrap gap-1">
-                        @foreach ($user->roles->sortBy('label') as $r)
-                            @php
-                                $cls = match($r->name) {
-                                    'admin'   => 'badge-error',
-                                    'winamax' => 'badge-warning',
-                                    default   => 'badge-ghost',
-                                };
-                            @endphp
-                            <x-badge :value="$r->label" class="{{ $cls }} badge-sm" style="background-color: {{ $r->color ?? '#000' }}; color: #fff;" />
-                        @endforeach
-                    </div>
-                @endscope
+            <div class="overflow-x-auto">
+                <x-table
+                    :headers="[
+                        ['key' => 'name',    'label' => 'Name'],
+                        ['key' => 'alias',   'label' => 'Alias'],
+                        ['key' => 'roles',   'label' => 'Roles'],
+                        ['key' => 'actions', 'label' => ''],
+                    ]"
+                    :rows="$users"
+                >
+                    @scope('cell_roles', $user)
+                        <div class="flex flex-wrap gap-1">
+                            @foreach ($user->roles->sortBy('label') as $r)
+                                @php
+                                    $cls = match($r->name) {
+                                        'admin'   => 'badge-error',
+                                        'winamax' => 'badge-warning',
+                                        default   => 'badge-ghost',
+                                    };
+                                @endphp
+                                <x-badge :value="$r->label" class="{{ $cls }} badge-sm" style="background-color: {{ $r->color ?? '#000' }}; color: #fff;" />
+                            @endforeach
+                        </div>
+                    @endscope
 
-                @scope('actions', $user)
-                    <x-button
-                        icon="o-pencil-square"
-                        wire:click="startEdit({{ $user->id }})"
-                        class="btn-ghost btn-sm"
-                        tooltip="Edit"
-                    />
-                @endscope
-            </x-table>
+                    @scope('actions', $user)
+                        <x-button
+                            icon="o-pencil-square"
+                            wire:click="startEdit({{ $user->id }})"
+                            class="btn-ghost btn-sm"
+                            tooltip="Edit"
+                        />
+                    @endscope
+                </x-table>
+            </div>
         </x-card>
 
     </div>

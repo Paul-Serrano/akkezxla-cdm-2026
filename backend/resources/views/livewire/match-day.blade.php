@@ -54,23 +54,40 @@
 
     {{-- Admin: edit score modal --}}
     @if ($editGameId)
+        @php
+            $editGame = $games->firstWhere('id', $editGameId);
+        @endphp
         <dialog class="modal modal-open">
             <div class="modal-box max-w-xs">
                 <h3 class="font-bold text-lg mb-4">Update Score</h3>
                 <div class="flex items-center justify-center gap-4">
-                    <input
-                        type="number"
-                        wire:model="editScoreHome"
-                        min="0" max="99"
-                        class="input input-bordered w-20 text-center text-2xl font-bold"
-                    />
+                    <div class="flex flex-col items-center gap-1">
+                        <img
+                            src="{{ $editGame?->homeTeam?->crest }}"
+                            alt="{{ $editGame?->homeTeam?->shortName ?? 'Home' }}"
+                            class="w-6 h-6 object-contain"
+                        />
+                        <input
+                            type="number"
+                            wire:model="editScoreHome"
+                            min="0" max="99"
+                            class="input input-bordered w-20 text-center text-2xl font-bold"
+                        />
+                    </div>
                     <span class="text-2xl font-light text-base-content/40">—</span>
-                    <input
-                        type="number"
-                        wire:model="editScoreAway"
-                        min="0" max="99"
-                        class="input input-bordered w-20 text-center text-2xl font-bold"
-                    />
+                    <div class="flex flex-col items-center gap-1">
+                        <img
+                            src="{{ $editGame?->awayTeam?->crest }}"
+                            alt="{{ $editGame?->awayTeam?->shortName ?? 'Away' }}"
+                            class="w-6 h-6 object-contain"
+                        />
+                        <input
+                            type="number"
+                            wire:model="editScoreAway"
+                            min="0" max="99"
+                            class="input input-bordered w-20 text-center text-2xl font-bold"
+                        />
+                    </div>
                 </div>
                 @error('editScoreHome') <p class="text-error text-xs mt-2">{{ $message }}</p> @enderror
                 @error('editScoreAway') <p class="text-error text-xs mt-2">{{ $message }}</p> @enderror

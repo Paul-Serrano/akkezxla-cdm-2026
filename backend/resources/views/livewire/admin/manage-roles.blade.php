@@ -35,9 +35,9 @@
                 />
                 <div>
                     <label class="label"><span class="label-text text-sm font-medium">Color <span class="text-base-content/40 font-normal">(optional)</span></span></label>
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
                         <input type="color" wire:model="color" class="w-10 h-10 rounded cursor-pointer border border-base-300" />
-                        <input type="text" wire:model="color" placeholder="#3b82f6" class="input input-bordered input-sm w-32 font-mono" />
+                        <input type="text" wire:model="color" placeholder="#3b82f6" class="input input-bordered input-sm w-full sm:w-32 min-w-0 font-mono" />
                     </div>
                 </div>
                 <x-slot:actions>
@@ -70,9 +70,9 @@
                                 <td><code class="text-xs text-base-content/60">{{ $role->name }}</code></td>
                                 <td>
                                     @if ($editingId === $role->id)
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex flex-wrap items-center gap-2">
                                             <input type="color" wire:model="editColor" class="w-8 h-8 rounded cursor-pointer border border-base-300" />
-                                            <input type="text" wire:model="editColor" class="input input-bordered input-xs w-24 font-mono" />
+                                            <input type="text" wire:model="editColor" class="input input-bordered input-xs w-full sm:w-24 min-w-0 font-mono" />
                                             <x-button icon="o-check" wire:click="saveColor" class="btn-ghost btn-xs text-success" tooltip="Save" />
                                             <x-button icon="o-x-mark" wire:click="cancelEditColor" class="btn-ghost btn-xs" tooltip="Cancel" />
                                         </div>

@@ -141,12 +141,13 @@ Route::get('/test-football-data', function () {
 
     $headers = ['X-Auth-Token' => $apiKey];
 
-    [$standingsResponse, $matchesResponse, $teamsResponse, $scorersResponse, $playersResponse] = [
+    [$standingsResponse, $matchesResponse, $teamsResponse, $scorersResponse, $playersResponse, $franceSquad] = [
         Http::withHeaders($headers)->get("{$base}/competitions/WC/standings", ['season' => 2026]),
         Http::withHeaders($headers)->get("{$base}/competitions/WC/matches",   ['season' => 2026]),
         Http::withHeaders($headers)->get("{$base}/competitions/WC/teams",     ['season' => 2026]),
         Http::withHeaders($headers)->get("{$base}/competitions/WC/scorers",  ['season' => 2026]),
         Http::withHeaders($headers)->get("{$base}/competitions/WC/players",     ['season' => 2026]),
+        Http::withHeaders($headers)->get("{$base}/matches/537393/head2head", ['season' => 2026]) // France squad (for testing)
     ];
 
     // Extract group composition from the standings response
@@ -178,5 +179,6 @@ Route::get('/test-football-data', function () {
         'standings' => $standingsResponse->json(),
         'scorers'   => $scorersResponse->json(),
         'players'   => $playersResponse->json(),
+        'france'    => $franceSquad->json(),
     ]);
 });

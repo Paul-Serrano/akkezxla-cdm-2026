@@ -10,6 +10,7 @@
                     wire:model="pointsSuperWin"
                     type="number" min="0" max="99"
                     :hint="\App\Enums\ConfigKey::PointsSuperWin->hint()"
+                    class="w-full"
                 />
 
                 <x-input
@@ -17,6 +18,7 @@
                     wire:model="pointsWin"
                     type="number" min="0" max="99"
                     :hint="\App\Enums\ConfigKey::PointsWin->hint()"
+                    class="w-full"
                 />
 
                 <x-input
@@ -24,6 +26,7 @@
                     wire:model="pointsScorer"
                     type="number" min="0" max="99"
                     :hint="\App\Enums\ConfigKey::PointsScorer->hint()"
+                    class="w-full"
                 />
 
                 <x-input
@@ -31,9 +34,10 @@
                     wire:model="totalPlayerBet"
                     type="number" min="1" max="99"
                     :hint="\App\Enums\ConfigKey::TotalPlayerBet->hint()"
+                    class="w-full"
                 />
 
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                     <x-button label="Save" icon="o-check" type="submit" class="btn-primary" />
 
                     @if ($saved)
