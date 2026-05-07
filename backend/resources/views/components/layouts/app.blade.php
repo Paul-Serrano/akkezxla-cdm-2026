@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -15,6 +15,9 @@
             <span class="font-black text-lg">CDM 2026</span>
         </x-slot:brand>
         <x-slot:actions>
+            <button type="button" class="btn btn-ghost btn-sm" data-theme-toggle aria-label="Toggle light and dark mode" title="Toggle theme">
+                <span class="inline-flex items-center justify-center w-5 h-5 text-base leading-none" data-theme-icon aria-hidden="true">🌙</span>
+            </button>
             @auth
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -48,6 +51,12 @@
                         </x-menu-sub>
                         <x-menu-separator />
                     @endif
+                    <li>
+                        <button type="button" class="flex gap-2 items-center px-4 py-2 w-full text-sm hover:bg-base-200 rounded-lg" data-theme-toggle>
+                            <span class="inline-flex items-center justify-center w-5 h-5 text-base leading-none" data-theme-icon aria-hidden="true">🌙</span>
+                            <span data-theme-name>Theme</span>
+                        </button>
+                    </li>
                     <x-menu-item title="{{ Auth::user()->alias }}" icon="o-user-circle" link="{{ route('profile') }}" />
                     <div class="flex flex-wrap gap-1 mx-4 mb-1">
                         @foreach (Auth::user()->roles->sortBy('label') as $r)
@@ -64,6 +73,12 @@
                         </form>
                     </li>
                 @else
+                    <li>
+                        <button type="button" class="flex gap-2 items-center px-4 py-2 w-full text-sm hover:bg-base-200 rounded-lg" data-theme-toggle>
+                            <span class="inline-flex items-center justify-center w-5 h-5 text-base leading-none" data-theme-icon aria-hidden="true">🌙</span>
+                            <span data-theme-name>Theme</span>
+                        </button>
+                    </li>
                     <x-menu-item title="Login" icon="o-arrow-right-on-rectangle" link="{{ route('login') }}" />
                 @endauth
             </x-menu>
