@@ -19,9 +19,12 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/app/tmp
 /vendor
 _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
 bdd.json
+
+/app/Console/Commands/ImportProdDatabase.php
