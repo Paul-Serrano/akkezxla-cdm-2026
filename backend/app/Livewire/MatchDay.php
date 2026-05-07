@@ -97,14 +97,26 @@ class MatchDay extends Component
         // $matchday is 1-based index into date groups
         $dayGames = $games->get($this->matchday - 1, collect());
         $totalDays = $games->count();
+        $editGame = $dayGames->firstWhere('id', $this->editGameId);
+        $safeTotalDays = max(1, $totalDays);
         $date = $dayGames->first()?->startDate
             ? \Carbon\Carbon::parse($dayGames->first()->startDate)->format('l d F Y')
             : null;
 
         return view('livewire.match-day', [
-            'games'     => $dayGames,
-            'date'      => $date,
-            'totalDays' => $totalDays,
+            'games'            => $dayGames,
+            'hasGames'         => $dayGames->isNotEmpty(),
+            'editGame'         => $editGame,
+            'editHomeCrest'    => $editGame?->homeTeam?->crest ?? '',
+            'editAwayCrest'    => $editGame?->awayTeam?->crest ?? '',
+            'editHomeAlt'      => $editGame?->homeTeam?->shortName ?? 'Home',
+            'editAwayAlt'      => $editGame?->awayTeam?->shortName ?? 'Away',
+            'date'             => $date,
+            'totalDays'        => $totalDays,
+            'previousMatchday' => max(1, $this->matchday - 1),
+            'nextMatchday'     => min($safeTotalDays, $this->matchday + 1),
+            'isFirstDay'       => $this->matchday <= 1,
+            'isLastDay'        => $this->matchday >= $safeTotalDays,
         ]);
     }
 }

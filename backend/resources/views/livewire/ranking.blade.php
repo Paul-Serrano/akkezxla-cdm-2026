@@ -7,25 +7,11 @@
         </x-slot:subtitle>
     </x-header>
 
-    @php
-        $isDesc = $sortDir === 'desc';
-        $col    = $sortBy;
-
-        $columns = [
-            'points'       => ['label' => 'Points',   'icon' => 'o-star',          'color' => 'text-amber-500'],
-            'superWins'    => ['label' => 'Exact',     'icon' => 'o-check-badge',   'color' => 'text-amber-500'],
-            'wins'         => ['label' => 'Result',    'icon' => 'o-check-circle',  'color' => 'text-emerald-500'],
-            'bets'         => ['label' => 'Bets',      'icon' => 'o-bookmark',      'color' => 'text-sky-500'],
-            'pointsPerBet' => ['label' => 'Pts/Bet',   'icon' => 'o-calculator',    'color' => 'text-violet-500'],
-            'alias'        => ['label' => 'Name',      'icon' => 'o-user',          'color' => 'text-base-content'],
-        ];
-    @endphp
-
     {{-- Role filter --}}
     <div class="flex flex-wrap gap-2 mb-3">
         <button
             wire:click="$set('filterRole', '')"
-            @class(['btn btn-sm gap-1 transition-all', 'btn-neutral shadow-md' => $filterRole === '', 'btn-outline' => $filterRole !== ''])
+            class="{{ $this->allRoleFilterClass() }}"
         >
             <x-icon name="o-users" class="w-4 h-4" />
             All
@@ -33,8 +19,8 @@
         @foreach ($allRoles as $r)
             <button
                 wire:click="$set('filterRole', '{{ $r->name }}')"
-                @class(['btn btn-sm gap-1 transition-all border-2', 'shadow-md text-white' => $filterRole === $r->name, 'btn-outline' => $filterRole !== $r->name])
-                style="{{ $filterRole === $r->name ? 'background-color: ' . ($r->color ?? '#000') . '; border-color: ' . ($r->color ?? '#000') . '; color: #fff;' : 'background-color: transparent; border-color: ' . ($r->color ?? '#000') . '; color: ' . ($r->color ?? '#000') . ';' }}"
+                class="{{ $this->roleFilterClass($r->name) }}"
+                style="{{ $this->roleFilterStyle($r->name, $r->color) }}"
             >
                 {{ $r->label }}
             </button>
@@ -46,11 +32,7 @@
         @foreach ($columns as $key => $meta)
             <button
                 wire:click="sort('{{ $key }}')"
-                @class([
-                    'btn btn-sm gap-1 transition-all',
-                    'btn-neutral shadow-md'  => $col === $key,
-                    'btn-outline' => $col !== $key,
-                ])
+                class="{{ $this->sortButtonClass($key) }}"
             >
                 <x-icon name="{{ $meta['icon'] }}" @class(['w-4 h-4', $meta['color'] => $col === $key]) />
                 {{ $meta['label'] }}

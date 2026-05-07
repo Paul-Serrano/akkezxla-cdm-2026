@@ -11,15 +11,15 @@
             <div class="join">
                 <x-button
                     icon="o-chevron-left"
-                    wire:click="$set('matchday', {{ max(1, $matchday - 1) }})"
-                    :disabled="$matchday <= 1"
+                    wire:click="$set('matchday', {{ $previousMatchday }})"
+                    :disabled="$isFirstDay"
                     class="join-item btn-sm"
                     tooltip="Previous day"
                 />
                 <x-button
                     icon="o-chevron-right"
-                    wire:click="$set('matchday', {{ min($totalDays, $matchday + 1) }})"
-                    :disabled="$matchday >= $totalDays"
+                    wire:click="$set('matchday', {{ $nextMatchday }})"
+                    :disabled="$isLastDay"
                     class="join-item btn-sm"
                     tooltip="Next day"
                 />
@@ -27,7 +27,7 @@
         </x-slot:actions>
     </x-header>
 
-    @if ($games->isEmpty())
+    @if (!$hasGames)
         <x-alert title="No games found for this day." icon="o-information-circle" class="alert-info" />
     @else
         {{-- MOBILE: stacked cards --}}
@@ -54,17 +54,14 @@
 
     {{-- Admin: edit score modal --}}
     @if ($editGameId)
-        @php
-            $editGame = $games->firstWhere('id', $editGameId);
-        @endphp
         <dialog class="modal modal-open">
             <div class="modal-box max-w-xs">
                 <h3 class="font-bold text-lg mb-4">Update Score</h3>
                 <div class="flex items-center justify-center gap-4">
                     <div class="flex flex-col items-center gap-1">
                         <img
-                            src="{{ $editGame?->homeTeam?->crest }}"
-                            alt="{{ $editGame?->homeTeam?->shortName ?? 'Home' }}"
+                            src="{{ $editHomeCrest }}"
+                            alt="{{ $editHomeAlt }}"
                             class="w-6 h-6 object-contain"
                         />
                         <input
@@ -77,8 +74,8 @@
                     <span class="text-2xl font-light text-base-content/40">—</span>
                     <div class="flex flex-col items-center gap-1">
                         <img
-                            src="{{ $editGame?->awayTeam?->crest }}"
-                            alt="{{ $editGame?->awayTeam?->shortName ?? 'Away' }}"
+                            src="{{ $editAwayCrest }}"
+                            alt="{{ $editAwayAlt }}"
                             class="w-6 h-6 object-contain"
                         />
                         <input

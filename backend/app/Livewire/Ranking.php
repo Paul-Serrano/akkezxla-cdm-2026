@@ -16,9 +16,61 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Ranking extends Component
 {
+    private const COLUMNS = [
+        'points' => ['label' => 'Points', 'icon' => 'o-star', 'color' => 'text-amber-500'],
+        'superWins' => ['label' => 'Exact', 'icon' => 'o-check-badge', 'color' => 'text-amber-500'],
+        'wins' => ['label' => 'Result', 'icon' => 'o-check-circle', 'color' => 'text-emerald-500'],
+        'bets' => ['label' => 'Bets', 'icon' => 'o-bookmark', 'color' => 'text-sky-500'],
+        'pointsPerBet' => ['label' => 'Pts/Bet', 'icon' => 'o-calculator', 'color' => 'text-violet-500'],
+        'alias' => ['label' => 'Name', 'icon' => 'o-user', 'color' => 'text-base-content'],
+    ];
+
     public string $sortBy = 'points';
     public string $sortDir = 'desc';
     public string $filterRole = '';
+
+    public function isSelectedRole(string $roleName): bool
+    {
+        return $this->filterRole === $roleName;
+    }
+
+    public function allRoleFilterClass(): string
+    {
+        $base = 'btn btn-sm gap-1 transition-all';
+
+        return $this->filterRole === ''
+            ? $base . ' btn-neutral shadow-md'
+            : $base . ' btn-outline';
+    }
+
+    public function roleFilterClass(string $roleName): string
+    {
+        $base = 'btn btn-sm gap-1 transition-all border-2';
+
+        return $this->isSelectedRole($roleName)
+            ? $base . ' shadow-md text-white'
+            : $base . ' btn-outline';
+    }
+
+    public function roleFilterStyle(string $roleName, ?string $color): string
+    {
+        $safeColor = $color ?? '#000';
+
+        if ($this->isSelectedRole($roleName)) {
+            return "background-color: {$safeColor}; border-color: {$safeColor}; color: #fff;";
+        }
+
+        return "background-color: transparent; border-color: {$safeColor}; color: {$safeColor};";
+    }
+
+    public function sortButtonClass(string $key): string
+    {
+        $base = 'btn btn-sm gap-1 transition-all';
+
+        return $this->sortBy === $key
+            ? $base . ' btn-neutral shadow-md'
+            : $base . ' btn-outline';
+    }
 
     /** Toggle sort column; if same column, flip direction. */
     public function sort(string $column): void
@@ -104,6 +156,9 @@ class Ranking extends Component
 
         return view('livewire.ranking', [
             'rows'        => $ranked,
+            'columns'     => self::COLUMNS,
+            'col'         => $this->sortBy,
+            'isDesc'      => $this->sortDir === 'desc',
             'ptsSuperWin' => $ptsSuperWin,
             'ptsWin'      => $ptsWin,
             'ptsScorer'   => Config::get(ConfigKey::PointsScorer),

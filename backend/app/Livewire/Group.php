@@ -68,10 +68,19 @@ class Group extends Component
         }
 
         // Sort by pts desc, then goal diff desc, then gf desc
-        $teamsWithStats = $teams->map(fn($team) => [
-            'team'  => $team,
-            'stats' => $stats[$team->id],
-        ])->sortByDesc(fn($row) => [
+        $teamsWithStats = $teams->map(function ($team) use ($stats) {
+            $teamStats = $stats[$team->id];
+            $gd = $teamStats['gf'] - $teamStats['ga'];
+
+            return [
+                'team'       => $team,
+                'stats'      => $teamStats,
+                'gd'         => $gd,
+                'gdLabel'    => ($gd > 0 ? '+' : '') . $gd,
+                'gdClass'    => $gd > 0 ? 'text-emerald-500' : ($gd < 0 ? 'text-red-500' : ''),
+                'gdClassRow' => $gd > 0 ? 'text-emerald-500' : ($gd < 0 ? 'text-red-500' : 'text-base-content/40'),
+            ];
+        })->sortByDesc(fn($row) => [
             $row['stats']['pts'],
             $row['stats']['gf'] - $row['stats']['ga'],
             $row['stats']['gf'],

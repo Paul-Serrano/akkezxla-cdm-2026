@@ -112,14 +112,7 @@
                     @scope('cell_roles', $user)
                         <div class="flex flex-wrap gap-1">
                             @foreach ($user->roles->sortBy('label') as $r)
-                                @php
-                                    $cls = match($r->name) {
-                                        'admin'   => 'badge-error',
-                                        'winamax' => 'badge-warning',
-                                        default   => 'badge-ghost',
-                                    };
-                                @endphp
-                                <x-badge :value="$r->label" class="{{ $cls }} badge-sm" style="background-color: {{ $r->color ?? '#000' }}; color: #fff;" />
+                                <x-badge :value="$r->label" class="{{ $this->roleBadgeClass($r->name) }} badge-sm" style="background-color: {{ $r->color ?? '#000' }}; color: #fff;" />
                             @endforeach
                         </div>
                     @endscope

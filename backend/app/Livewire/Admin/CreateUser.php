@@ -40,6 +40,15 @@ class CreateUser extends Component
     public bool $updated = false;
     public string $updatedName = '';
 
+    public function roleBadgeClass(string $roleName): string
+    {
+        return match ($roleName) {
+            'admin' => 'badge-error',
+            'winamax' => 'badge-warning',
+            default => 'badge-ghost',
+        };
+    }
+
     public function mount(): void
     {
         abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
