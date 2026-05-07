@@ -99,10 +99,11 @@ Example credentials:
 
 ## 🔑 API Configuration
 
-Create an account on https://the-odds-api.com/ and add your key:
+Create accounts for the external APIs and add the keys:
 
 ```env
 ODDS_API_KEY=your_api_key_here
+FOOTBALL_DATA_API_KEY=your_api_key_here
 ```
 
 ---
@@ -184,6 +185,41 @@ Set these in your Render service:
 - `DB_USERNAME=<render-postgres-user>`
 - `DB_PASSWORD=<render-postgres-password>`
 - `ODDS_API_KEY=<your-api-key>`
+- `FOOTBALL_DATA_API_KEY=<your-football-data-api-key>`
+
+### Render Cron Job For Live Scores
+
+To run the Laravel scheduler on Render, create a separate `Cron Job` service that uses the same repository and Dockerfile as the web app.
+
+Recommended settings:
+
+- Environment: `Docker`
+- Dockerfile path: `infra/docker/prod/Dockerfile`
+- Schedule: `*/5 * * * *`
+- Command: `php artisan schedule:run`
+- Working directory inside container: `/var/www/html`
+
+Use the same environment variables as the web service for:
+
+- `APP_ENV`
+- `APP_DEBUG`
+- `APP_KEY`
+- `APP_URL`
+- `DB_CONNECTION`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_DATABASE`
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `FOOTBALL_DATA_API_KEY`
+
+Recommended cron-specific overrides:
+
+- `RUN_MIGRATIONS=false`
+- `RUN_IMPORTS=false`
+- `RUN_SEEDER=false`
+
+The scheduler will call Laravel every 5 minutes, and Laravel will run `import:live-games --season=2026` from `routes/console.php`. When no games are in progress, the command exits immediately.
 
 ### Recommended Branch Protection
 

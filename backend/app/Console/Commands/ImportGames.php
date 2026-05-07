@@ -10,13 +10,14 @@ use Illuminate\Support\Facades\Http;
 
 class ImportGames extends Command
 {
-    protected $signature = 'import:games';
+    protected $signature = 'import:games {--season=2026 : Season to import (e.g. 2026)}';
 
     protected $description = 'Import FIFA World Cup 2026 matches from football-data.org and assign teams to group standings';
 
     public function handle(): int
     {
         $apiKey = config('services.football_data.key');
+        $season = (int) $this->option('season');
 
         if (empty($apiKey)) {
             $this->error('FOOTBALL_DATA_API_KEY is not set in your .env file.');
@@ -28,7 +29,7 @@ class ImportGames extends Command
         $response = Http::withHeaders([
             'X-Auth-Token' => $apiKey,
         ])->get('https://api.football-data.org/v4/competitions/WC/matches', [
-            'season' => 2026,
+            'season' => $season,
         ]);
 
         if ($response->failed()) {
@@ -52,6 +53,8 @@ class ImportGames extends Command
         $this->info('Importing ' . count($matches) . ' matches...');
         $bar = $this->output->createProgressBar(count($matches));
         $bar->start();
+
+        $standingIdsToRecalculate = [];
 
         foreach ($matches as $match) {
             $group = $match['group'] ?? null; // e.g. "GROUP_A"
@@ -90,8 +93,19 @@ class ImportGames extends Command
                 continue;
             }
 
-            $scoreHome = $match['score']['fullTime']['home'] ?? null;
-            $scoreAway = $match['score']['fullTime']['away'] ?? null;
+            $scoreHome = $match['score']['fullTime']['home']
+                ?? $match['score']['regularTime']['home']
+                ?? null;
+            $scoreAway = $match['score']['fullTime']['away']
+                ?? $match['score']['regularTime']['away']
+                ?? null;
+
+            // If a game is not final, keep scores nullable to avoid closing bets too early.
+            $status = strtoupper((string) ($match['status'] ?? ''));
+            if (!in_array($status, ['FINISHED', 'AWARDED'], true)) {
+                $scoreHome = null;
+                $scoreAway = null;
+            }
 
             Game::updateOrCreate(
                 ['apiId' => $match['id']],
@@ -104,11 +118,26 @@ class ImportGames extends Command
                 ]
             );
 
+            if ($homeTeam->standingId) {
+                $standingIdsToRecalculate[$homeTeam->standingId] = true;
+            }
+            if ($awayTeam->standingId) {
+                $standingIdsToRecalculate[$awayTeam->standingId] = true;
+            }
+
             $bar->advance();
         }
 
         $bar->finish();
         $this->newLine();
+
+        if (!empty($standingIdsToRecalculate)) {
+            $this->info('Recalculating standings...');
+            foreach (array_keys($standingIdsToRecalculate) as $standingId) {
+                Standing::recalculate((int) $standingId);
+            }
+        }
+
         $this->info('Games imported successfully.');
 
         return self::SUCCESS;

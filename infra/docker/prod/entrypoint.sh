@@ -42,6 +42,11 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
+# Allow Render cron jobs or one-off jobs to execute a custom command.
+if [ "$#" -gt 0 ]; then
+  exec "$@"
+fi
+
 # Render expects an HTTP server bound to 0.0.0.0:$PORT.
 if [ -n "${PORT:-}" ]; then
   exec php artisan serve --host=0.0.0.0 --port="$PORT"
