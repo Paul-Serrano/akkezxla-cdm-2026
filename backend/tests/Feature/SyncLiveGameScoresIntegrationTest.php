@@ -13,6 +13,13 @@ class SyncLiveGameScoresIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.football_data.key' => 'test-football-data-key']);
+    }
+
     /**
      * Test: Full integration - multiple games, standings recalculation
      */
