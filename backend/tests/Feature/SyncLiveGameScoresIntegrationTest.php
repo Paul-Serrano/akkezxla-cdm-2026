@@ -167,7 +167,7 @@ class SyncLiveGameScoresIntegrationTest extends TestCase
         ]);
 
         $this->artisan('import:live-games --season=2026')
-            ->expectsOutput('  Updated: ESP 2 - 1 POR')
+            ->expectsOutput('  Updated [match 201]: ESP 2 - 1 POR')
             ->assertExitCode(0);
 
         $game->refresh();

@@ -80,7 +80,7 @@ class SyncLiveGameScoresTest extends TestCase
         $this->artisan('import:live-games --season=2026')
             ->expectsOutput("Found 1 game(s) in progress. Fetching updates...")
             ->expectsOutput('Updating 1 live game(s)...')
-            ->expectsOutput('  Updated: FRA 2 - 1 GER')
+            ->expectsOutput('  Updated [match 999]: FRA 2 - 1 GER')
             ->expectsOutput('Standings recalculated.')
             ->assertExitCode(0);
 
