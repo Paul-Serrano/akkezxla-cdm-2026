@@ -9,6 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Sync only live games every 5 minutes — automatically stops when no games are in progress.
+// Note: withoutOverlapping() is intentionally omitted — Render spins a fresh container per cron
+// run, so concurrent execution is impossible.
 Schedule::command('import:live-games --season=2026')
-    ->everyFiveMinutes()
-    ->withoutOverlapping();
+    ->everyFiveMinutes();
