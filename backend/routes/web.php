@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
+// Lightweight health endpoints for uptime checks.
+Route::get('/health', static fn () => response()->json([
+    'status' => 'ok',
+], 200));
+
+Route::get('/ready', static fn () => response()->json([
+    'status' => 'ok',
+    'timestamp' => now()->toIso8601String(),
+], 200));
+
 Route::get('/', Standings::class);
 Route::get('/matchday', MatchDay::class);
 Route::get('/matchday/{matchday}', MatchDay::class);
@@ -49,13 +59,6 @@ Route::get('/profile', EditProfile::class)
 Route::get('/ranking', Ranking::class)
     ->middleware('auth')
     ->name('ranking');
-
-Route::get('/health', function () {
-    return response()->json([
-        'status' => 'ok',
-        'time' => now()
-    ]);
-});
 
 /**
  * Temporary diagnostic route — remove before production.
