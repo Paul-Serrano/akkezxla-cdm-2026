@@ -35,7 +35,7 @@
 
     <x-main full-width>
         {{-- Sidebar (desktop) --}}
-        <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
+        <x-slot:sidebar drawer="main-drawer" class="bg-base-100 lg:bg-inherit">
             <x-menu activate-by-route>
                 <div class="flex justify-center">
                     <img src="/images/logo.png" alt="CDM 2026" class="w-40 h-40 object-contain" />
