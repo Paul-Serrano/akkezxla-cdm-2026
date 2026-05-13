@@ -38,7 +38,7 @@
         <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
             <x-menu activate-by-route>
                 <div class="flex justify-center">
-                    <img src="/images/logo.png" alt="CDM 2026" class="w-80 h-80 object-contain" />
+                    <img src="/images/logo.png" alt="CDM 2026" class="w-40 h-40 object-contain" />
                 </div>
                 <x-menu-item title="Standings" icon="o-table-cells" link="/" />
                 <x-menu-item title="Match Day" icon="o-calendar-days" link="/matchday" />
