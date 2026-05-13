@@ -11,12 +11,33 @@ use Livewire\Component;
 class MatchDay extends Component
 {
     public int $matchday;
+    protected $gamesByDay;
 
     public ?int $editGameId = null;
     public ?int $editScoreHome = null;
     public ?int $editScoreAway = null;
 
     public $saved;
+
+    public function boot(): void
+    {
+        $this->loadGamesByDay();
+    }
+
+    private function loadGamesByDay(): void
+    {
+        $this->gamesByDay = Game::with(['homeTeam.standing', 'awayTeam.standing'])
+            ->whereNotNull('homeTeamId')
+            ->whereNotNull('awayTeamId')
+            ->orderBy('startDate')
+            ->get()
+            ->groupBy(fn ($g) => \Carbon\Carbon::parse($g->startDate)->toDateString())
+            ->values();
+
+        if (isset($this->matchday)) {
+            $this->matchday = min(max(1, $this->matchday), max(1, $this->gamesByDay->count()));
+        }
+    }
 
     public function mount(?int $matchday = null): void
     {
@@ -27,10 +48,7 @@ class MatchDay extends Component
 
         // Default: first day that still has at least one unplayed game.
         // Fall back to the last day if everything is already played.
-        $groups = Game::orderBy('startDate')
-            ->get()
-            ->groupBy(fn ($g) => \Carbon\Carbon::parse($g->startDate)->toDateString())
-            ->values();
+        $groups = $this->gamesByDay;
 
         $this->matchday = $groups->count() ?: 1; // fallback = last day
         foreach ($groups as $index => $dayGames) {
@@ -41,7 +59,10 @@ class MatchDay extends Component
         }
     }
 
-    public function refreshGames(): void {}
+    public function refreshGames(): void
+    {
+        $this->loadGamesByDay();
+    }
 
     public function startEditScore(int $gameId): void
     {
@@ -79,20 +100,13 @@ class MatchDay extends Component
             Standing::recalculate($game->homeTeam->standingId);
         }
 
+        $this->loadGamesByDay();
         $this->cancelEditScore();
     }
 
     public function render()
     {
-        // Games are ordered by date; we paginate by startDate buckets.
-        // Since the DB has no matchday column we derive it by ordering date.
-        $games = Game::with(['homeTeam.standing', 'awayTeam.standing'])
-            ->whereNotNull('homeTeamId')
-            ->whereNotNull('awayTeamId')
-            ->orderBy('startDate')
-            ->get()
-            ->groupBy(fn ($g) => \Carbon\Carbon::parse($g->startDate)->toDateString())
-            ->values();
+        $games = $this->gamesByDay;
 
         // $matchday is 1-based index into date groups
         $dayGames = $games->get($this->matchday - 1, collect());
