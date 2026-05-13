@@ -32,7 +32,7 @@
         </x-slot:actions>
     </x-nav>
 
-    <x-main full-width with-nav>
+    <x-main full-width>
         {{-- Sidebar (desktop) --}}
         <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
             <x-menu activate-by-route>
