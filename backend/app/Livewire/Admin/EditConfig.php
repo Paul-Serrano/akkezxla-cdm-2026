@@ -4,7 +4,6 @@ namespace App\Livewire\Admin;
 
 use App\Enums\ConfigKey;
 use App\Models\Config;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -20,8 +19,6 @@ class EditConfig extends Component
 
     public function mount(): void
     {
-        abort_unless(Auth::user()->isAdmin(), 403);
-
         $this->pointsSuperWin = Config::get(ConfigKey::PointsSuperWin);
         $this->pointsWin      = Config::get(ConfigKey::PointsWin);
         $this->pointsScorer   = Config::get(ConfigKey::PointsScorer);
@@ -30,8 +27,6 @@ class EditConfig extends Component
 
     public function save(): void
     {
-        abort_unless(Auth::user()->isAdmin(), 403);
-
         $this->validate([
             'pointsSuperWin' => ['required', 'integer', 'min:0', 'max:99'],
             'pointsWin'      => ['required', 'integer', 'min:0', 'max:99'],

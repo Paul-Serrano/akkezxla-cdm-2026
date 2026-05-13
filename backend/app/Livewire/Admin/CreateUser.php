@@ -55,13 +55,11 @@ class CreateUser extends Component
 
     public function mount(): void
     {
-        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
     }
 
     // ── Create ─────────────────────────────────────────────────────────────────
     public function create(): void
     {
-        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
 
         $this->validate([
             'name'     => ['required', 'string', 'max:255'],
@@ -115,8 +113,6 @@ class CreateUser extends Component
 
     public function updateUser(): void
     {
-        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
-
         $rules = [
             'editName'  => ['required', 'string', 'max:255'],
             'editAlias' => ['required', 'string', 'max:255', Rule::unique('user', 'alias')->ignore($this->editingId)],
@@ -155,8 +151,6 @@ class CreateUser extends Component
 
     public function deleteUser(int $userId): void
     {
-        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
-
         $this->deleteError = '';
         $currentUserId = (int) Auth::id();
         if ($currentUserId === $userId) {

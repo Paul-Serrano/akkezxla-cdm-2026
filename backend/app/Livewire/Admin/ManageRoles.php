@@ -3,7 +3,6 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Role;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -28,13 +27,10 @@ class ManageRoles extends Component
 
     public function mount(): void
     {
-        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
     }
 
     public function create(): void
     {
-        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
-
         $this->validate([
             'name'  => ['required', 'string', 'max:32', 'unique:role,name', 'regex:/^[a-z][a-z0-9_]*$/'],
             'label' => ['required', 'string', 'max:64'],
@@ -62,8 +58,6 @@ class ManageRoles extends Component
 
     public function saveColor(): void
     {
-        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
-
         $this->validate(['editColor' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/']]);
 
         Role::findOrFail($this->editingId)->update(['color' => $this->editColor ?: null]);
@@ -80,8 +74,6 @@ class ManageRoles extends Component
 
     public function deleteRole(int $id): void
     {
-        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
-
         $this->deleteError = '';
 
         $role = Role::findOrFail($id);

@@ -4,6 +4,7 @@ namespace App\Livewire\Auth;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Throttle;
 use Livewire\Component;
 
 #[Layout('components.layouts.app')]
@@ -12,6 +13,7 @@ class Login extends Component
     public string $email = '';
     public string $password = '';
 
+    #[Throttle(5, 60)]
     public function login(): void
     {
         $this->validate([
