@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Bet;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,9 @@ class CreateUser extends Component
 
     public bool $updated = false;
     public string $updatedName = '';
+    public bool $deleted = false;
+    public string $deletedName = '';
+    public string $deleteError = '';
 
     public function roleBadgeClass(string $roleName): string
     {
@@ -147,6 +151,41 @@ class CreateUser extends Component
         $this->updatedName = $user->name;
         $this->updated = true;
         $this->cancelEdit();
+    }
+
+    public function deleteUser(int $userId): void
+    {
+        abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
+
+        $this->deleteError = '';
+        $currentUserId = (int) Auth::id();
+        if ($currentUserId === $userId) {
+            $this->deleteError = 'You cannot delete your own account.';
+            return;
+        }
+
+        $user = User::with('roles')->findOrFail($userId);
+        if ($user->isAdmin()) {
+            $adminCount = User::whereHas('roles', fn ($q) => $q->where('name', User::ROLE_ADMIN))->count();
+            if ($adminCount <= 1) {
+                $this->deleteError = 'At least one admin account must remain.';
+                return;
+            }
+        }
+
+        Bet::where('userId', $user->id)->delete();
+
+        if ($this->editingId === $user->id) {
+            $this->cancelEdit();
+        }
+
+        $name = $user->name;
+        $user->delete();
+
+        $this->deletedName = $name;
+        $this->deleted = true;
+        $this->created = false;
+        $this->updated = false;
     }
 
     public function render()

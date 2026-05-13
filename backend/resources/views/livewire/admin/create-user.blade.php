@@ -25,6 +25,26 @@
         />
     @endif
 
+    @if ($deleted)
+        <x-alert
+            title="{{ $deletedName }} deleted successfully."
+            class="alert-success mb-4"
+            icon="o-check-circle"
+            x-data
+            x-init="setTimeout(() => $wire.set('deleted', false), 4000)"
+        />
+    @endif
+
+    @if ($deleteError)
+        <x-alert
+            title="{{ $deleteError }}"
+            class="alert-error mb-4"
+            icon="o-exclamation-triangle"
+            x-data
+            x-init="setTimeout(() => $wire.set('deleteError', ''), 4000)"
+        />
+    @endif
+
     <div class="grid lg:grid-cols-2 gap-8 items-start">
 
         {{-- Create / Edit form --}}
@@ -118,12 +138,21 @@
                     @endscope
 
                     @scope('actions', $user)
-                        <x-button
-                            icon="o-pencil-square"
-                            wire:click="startEdit({{ $user->id }})"
-                            class="btn-ghost btn-sm"
-                            tooltip="Edit"
-                        />
+                        <div class="flex items-center justify-end gap-1">
+                            <x-button
+                                icon="o-pencil-square"
+                                wire:click="startEdit({{ $user->id }})"
+                                class="btn-ghost btn-sm"
+                                tooltip="Edit"
+                            />
+                            <x-button
+                                icon="o-trash"
+                                wire:click="deleteUser({{ $user->id }})"
+                                wire:confirm="Delete {{ $user->name }}? This will remove all their bets."
+                                class="btn-ghost btn-sm text-error"
+                                tooltip="Delete"
+                            />
+                        </div>
                     @endscope
                 </x-table>
             </div>
