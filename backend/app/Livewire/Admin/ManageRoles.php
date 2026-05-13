@@ -16,12 +16,15 @@ class ManageRoles extends Component
 
     public bool $created = false;
     public string $createdLabel = '';
+    public bool $deleted = false;
+    public string $deletedLabel = '';
+    public string $deleteError = '';
 
     public ?int $editingId    = null;
     public string $editColor  = '';
 
     /** Roles that cannot be deleted */
-    protected array $protected = ['admin', 'winamax', 'regular'];
+    protected array $protected = ['admin', 'akkezxla', 'uspeg', 'regular'];
 
     public function mount(): void
     {
@@ -75,14 +78,24 @@ class ManageRoles extends Component
         $this->editColor = '';
     }
 
-    public function delete(int $id): void
+    public function deleteRole(int $id): void
     {
         abort_unless(Auth::check() && Auth::user()->isAdmin(), 403);
 
-        $role = Role::findOrFail($id);
-        abort_if(in_array($role->name, $this->protected), 403);
+        $this->deleteError = '';
 
+        $role = Role::findOrFail($id);
+        if (in_array($role->name, $this->protected, true)) {
+            $this->deleteError = 'This system role cannot be deleted.';
+            return;
+        }
+
+        $label = $role->label;
         $role->delete();
+
+        $this->deletedLabel = $label;
+        $this->deleted = true;
+        $this->created = false;
     }
 
     public function render()

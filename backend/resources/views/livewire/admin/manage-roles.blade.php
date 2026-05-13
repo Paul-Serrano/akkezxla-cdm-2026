@@ -15,6 +15,26 @@
         />
     @endif
 
+    @if ($deleted)
+        <x-alert
+            title="{{ $deletedLabel }} role deleted successfully."
+            class="alert-success mb-4"
+            icon="o-check-circle"
+            x-data
+            x-init="setTimeout(() => $wire.set('deleted', false), 4000)"
+        />
+    @endif
+
+    @if ($deleteError)
+        <x-alert
+            title="{{ $deleteError }}"
+            class="alert-error mb-4"
+            icon="o-exclamation-triangle"
+            x-data
+            x-init="setTimeout(() => $wire.set('deleteError', ''), 4000)"
+        />
+    @endif
+
     <div class="grid lg:grid-cols-2 gap-8 items-start">
 
         {{-- Create role form --}}
@@ -89,10 +109,10 @@
                                     @endif
                                 </td>
                                 <td class="text-right">
-                                    @if (!in_array($role->name, ['admin', 'akkezxla', 'uspeg', 'regular']))
+                                    @if (!in_array($role->name, ['admin']))
                                         <x-button
                                             icon="o-trash"
-                                            wire:click="delete({{ $role->id }})"
+                                            wire:click="deleteRole({{ $role->id }})"
                                             wire:confirm="Delete the '{{ $role->label }}' role? Users assigned to it will keep the slug."
                                             class="btn-ghost btn-sm text-error"
                                             tooltip="Delete"
