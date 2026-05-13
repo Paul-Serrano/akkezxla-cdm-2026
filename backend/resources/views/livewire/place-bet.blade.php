@@ -47,7 +47,7 @@
 
                 <button type="submit" class="btn btn-primary btn-sm gap-1">
                     <x-icon name="o-bookmark" class="w-4 h-4" />
-                    <span class="hidden sm:inline">Bet</span>
+                    <span>Bet</span>
                 </button>
 
                 @if ($saved)

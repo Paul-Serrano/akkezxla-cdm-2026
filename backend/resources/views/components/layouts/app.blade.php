@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ config('app.name', 'CDM 2026') }}</title>
+    <link rel="icon" type="image/png" href="/images/logo.png" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -12,7 +13,7 @@
     {{-- Top nav --}}
     <x-nav sticky class="lg:hidden">
         <x-slot:brand>
-            <span class="font-black text-lg">CDM 2026</span>
+            <img src="/images/logo.png" alt="CDM 2026" class="h-16 w-16 object-contain" />
         </x-slot:brand>
         <x-slot:actions>
             <button type="button" class="btn btn-ghost btn-sm" data-theme-toggle aria-label="Toggle light and dark mode" title="Toggle theme">
@@ -36,6 +37,9 @@
         {{-- Sidebar (desktop) --}}
         <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
             <x-menu activate-by-route>
+                <div class="flex justify-center">
+                    <img src="/images/logo.png" alt="CDM 2026" class="w-40 h-40 object-contain" />
+                </div>
                 <x-menu-item title="Standings" icon="o-table-cells" link="/" />
                 <x-menu-item title="Match Day" icon="o-calendar-days" link="/matchday" />
                 <x-menu-item title="Ranking" icon="o-trophy" link="{{ route('ranking') }}" />
