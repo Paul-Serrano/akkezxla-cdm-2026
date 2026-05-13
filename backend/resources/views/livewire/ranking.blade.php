@@ -105,9 +105,10 @@
                         </td>
                         {{-- alias --}}
                         <td>
-                            <span @class(['font-semibold', 'text-base-content' => $col !== 'alias', 'font-black underline' => $col === 'alias'])>
-                                {{ $row['alias'] }}
+                            <span @class(['font-semibold block', 'text-base-content' => $col !== 'alias', 'font-black underline' => $col === 'alias'])>
+                                {{ $row['name'] }}
                             </span>
+                            <span class="text-xs text-base-content/50">{{ $row['alias'] }}</span>
                         </td>
                     </tr>
                 @empty
@@ -136,12 +137,13 @@
                             @if ($row['rank'] === 1 && $row['points'] > 0)
                                 <x-icon name="o-trophy" class="w-7 h-7 text-amber-400 shrink-0" />
                             @else
-                                <span class="text-2xl font-black tabular-nums text-base-content/25 w-8 shrink-0">#{{ $row['rank'] }}</span>
+                                <span class="text-xl font-black tabular-nums text-base-content/25 w-10 shrink-0 text-center">#{{ $row['rank'] }}</span>
                             @endif
                             <div>
                                 <p class="font-bold leading-tight">
-                                    {{ $row['alias'] }}
+                                    {{ $row['name'] }}
                                 </p>
+                                <p class="text-xs text-base-content/50 leading-tight">{{ $row['alias'] }}</p>
                                 <span class="badge badge-xs badge-ghost">{{ $row['role'] }}</span>
                             </div>
                         </div>

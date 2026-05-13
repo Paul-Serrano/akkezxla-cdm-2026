@@ -57,7 +57,6 @@ Route::get('/profile', EditProfile::class)
 
 // Restricted
 Route::get('/ranking', Ranking::class)
-    ->middleware('auth')
     ->name('ranking');
 
 /**

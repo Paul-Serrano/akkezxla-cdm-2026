@@ -38,9 +38,7 @@
             <x-menu activate-by-route>
                 <x-menu-item title="Standings" icon="o-table-cells" link="/" />
                 <x-menu-item title="Match Day" icon="o-calendar-days" link="/matchday" />
-                @auth
-                        <x-menu-item title="Ranking" icon="o-trophy" link="{{ route('ranking') }}" />
-                @endauth
+                <x-menu-item title="Ranking" icon="o-trophy" link="{{ route('ranking') }}" />
                 <x-menu-separator />
                 @auth
                     @if (Auth::user()->isAdmin())

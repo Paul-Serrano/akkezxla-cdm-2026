@@ -134,6 +134,7 @@ class Ranking extends Component
             return [
                 'id'           => $user->id,
                 'alias'        => $user->alias,
+                'name'         => $user->name,
                 'role'         => $user->roles->pluck('label')->join(', '),
                 'bets'         => $betCount,
                 'superWins'    => $superWins,
@@ -162,7 +163,7 @@ class Ranking extends Component
             'ptsSuperWin' => $ptsSuperWin,
             'ptsWin'      => $ptsWin,
             'ptsScorer'   => Config::get(ConfigKey::PointsScorer),
-            'allRoles'    => Role::orderBy('label')->get(['name', 'label', 'color']),
+            'allRoles'    => Role::where('name', '!=', 'admin')->orderBy('label')->get(['name', 'label', 'color']),
             'currentUserId' => Auth::id(),
         ]);
     }
