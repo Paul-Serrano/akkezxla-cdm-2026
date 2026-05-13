@@ -1,142 +1,182 @@
-# ⚽ World Cup 2026 Betting App
+# ⚽ Akkezxla — Coupe du Monde 2026
 
-A mobile-first web application built with Laravel that allows friends to compete by predicting matches, results, and odds during the 2026 FIFA World Cup.
+A mobile-first betting app for friends to compete by predicting World Cup 2026 match results.
 
-The goal is simple: **prove who knows football best** — and optionally align bets on Winamax based on the most popular predictions.
+The goal is simple: **prove who knows football best** — and optionally align bets on Winamax based on the most popular group predictions.
 
 ---
 
 ## 🚀 Features
 
-- 📅 View upcoming World Cup matches
-- 📊 Display odds, results, and game data via external API
-- 🧠 Place predictions (winner, score, etc.)
-- 🏆 Leaderboard to rank players based on performance
-- 👥 Private group betting with friends
-- 📈 Consensus betting (most chosen bet per match)
-- 📱 Mobile-first UI for seamless usage during matches
+- 📅 Browse all World Cup matches by match day
+- 🧠 Place predictions (1 / N / 2) on each game
+- 🏆 Public ranking leaderboard (visible without login)
+- 📈 Consensus betting — see the most chosen outcome per match
+- 👥 Role-based access (admin, akkezxla, regular, custom roles)
+- 🛡️ Admin panel — manage users, roles, and app configuration
+- 📊 Group standings per World Cup group
+- 📱 Mobile-first UI with dark/light theme toggle
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Backend
-- Laravel (PHP)
-- PostgreSQL database
-- REST API integrations
+- **Laravel 13** (PHP 8.3)
+- **PostgreSQL 16** database
+- **Livewire 4.3** for reactive UI components
 
 ### Frontend
-- Blade templating
-- Tailwind CSS
-- MaryUI components
+- **Blade** templating
+- **Tailwind CSS v4** + **DaisyUI 5.5**
+- **Mary UI 2.8** component library
+- **Vite 8** asset bundler
 
-### DevOps / Tools
-- Docker (containerized environment)
-- Adminer (database management UI)
-
-### External API
-- https://the-odds-api.com/
-  Used to fetch:
-  - Matches
-  - Results
-  - Betting odds
+### Infrastructure
+- **Docker** (separate dev and prod configs in `infra/docker/`)
+- **Nginx** (prod only, config in `infra/nginx/prod/`)
+- **Adminer** (dev only, database management UI at `localhost:8080`)
+- **Render** (cloud hosting)
 
 ---
 
-## 🐳 Docker Setup
+## 🐳 Local Development (Docker)
 
 ### Prerequisites
-- Docker
-- Docker Compose
+- Docker + Docker Compose
 
-### Installation
+### Setup
 
 ```bash
 git clone <your-repo-url>
 cd <project-folder>
-cp .env.example .env
+cp backend/.env.example backend/.env
+# Edit backend/.env — set APP_KEY and DB credentials
 ```
 
-Update your `.env` with PostgreSQL credentials:
-
-```env
-DB_CONNECTION=pgsql
-DB_HOST=postgres
-DB_PORT=5432
-DB_DATABASE=worldcup
-DB_USERNAME=postgres
-DB_PASSWORD=secret
-```
-
-### Start containers
+### Start dev containers
 
 ```bash
-docker-compose up -d --build
+docker compose -f infra/docker/dev/docker-compose.yml up -d --build
 ```
+
+This starts:
+- `app` — Laravel dev server at `http://localhost:8000`
+- `postgres` — PostgreSQL 16 at `localhost:5432`
+- `adminer` — DB UI at `http://localhost:8080`
 
 ### Run migrations
 
 ```bash
-docker exec -it app php artisan migrate
+docker exec -it cdm_app php artisan migrate
 ```
 
+### Adminer credentials (dev)
+- System: `PostgreSQL`
+- Server: `postgres`
+- Username: `postgres`
+- Password: `secret`
+- Database: `worldcup`
+
+### Frontend assets (hot reload)
+
+```bash
+cd backend && npm install && npm run dev
+```
+
+> **Note:** Tailwind v4 generates CSS at build time. If a class appears missing locally, make sure `npm run dev` is running — it scans blade/PHP files and emits only used classes.
+
 ---
 
-## 🗄️ Database Access (Adminer)
+## 🖼️ Logo
 
-Adminer will be available at:
+The app logo is served as a static asset (not processed by Vite).
 
-http://localhost:8080
+Place it at:
+```
+backend/public/images/logo.png
+```
 
-Example credentials:
-- System: PostgreSQL
-- Server: postgres
-- Username: postgres
-- Password: secret
-- Database: worldcup
+It is referenced in:
+- Browser tab favicon (`<link rel="icon">`)
+- Mobile top nav brand slot
+- Desktop sidebar header
 
 ---
 
-## 🔑 API Configuration
+## 🔑 Environment Variables
 
-Create accounts for the external APIs and add the keys:
+Key variables to set in `.env` / Render dashboard:
 
 ```env
-ODDS_API_KEY=your_api_key_here
-FOOTBALL_DATA_API_KEY=your_api_key_here
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=                        # php artisan key:generate
+APP_URL=https://your-app.onrender.com
+
+DB_CONNECTION=pgsql
+DB_HOST=<render-postgres-host>
+DB_PORT=5432
+DB_DATABASE=<db-name>
+DB_USERNAME=<db-user>
+DB_PASSWORD=<db-password>
+
+ODDS_API_KEY=                   # optional, for future odds integration
+FOOTBALL_DATA_API_KEY=          # optional, for future match data integration
 ```
 
 ---
 
-## 📱 Frontend
+## 🔁 CI/CD (GitHub Actions + Render)
 
-The UI is built with:
-- Blade templates
-- Tailwind CSS
-- MaryUI components
+### Workflows
 
-The application is designed **mobile-first**, optimized for quick access during live matches.
+- **`CI`** (`ci.yml`) — runs on every push and pull request to `main`:
+  - PHP 8.3 + Laravel tests
+  - Node 22 frontend build
+
+- **`Deploy to Render`** (`deploy-render.yml`) — triggered **manually** via GitHub Actions (`workflow_dispatch`):
+  - Calls the Render deploy hook
+  - Waits for warm-up, then polls `/up` (up to 12 × 10s attempts) to confirm the deploy succeeded
+
+### Required GitHub Secrets
+
+| Secret | Where to find it |
+|---|---|
+| `RENDER_DEPLOY_HOOK_URL` | Render service → Settings → Deploy Hook |
+| `APP_HEALTHCHECK_URL` | Your app URL + `/up` (e.g. `https://your-app.onrender.com/up`) |
+
+### Render Environment Variables
+
+Set all variables from the [Environment Variables](#-environment-variables) section above in your Render service dashboard.
+
+### Deploy entrypoint behaviour
+
+The production entrypoint (`infra/docker/prod/entrypoint.sh`) supports these optional env flags on deploy:
+
+| Variable | Default | Effect |
+|---|---|---|
+| `RUN_MIGRATIONS` | `true` on Render | Runs `php artisan migrate --force` |
+| `RUN_SEEDER` | `false` | Seeds the database |
+| `RUN_IMPORTS` | `false` | Runs `import:teams` + `import:games` artisan commands |
 
 ---
 
-## 🎯 Project Goal
+## 🟢 Uptime Monitoring (UptimeRobot)
 
-This project is designed for a group of friends to:
+The `/up` health endpoint (built into Laravel) is used to monitor production uptime.
 
-- Predict World Cup match outcomes
-- Compete on a leaderboard
-- Compare knowledge of football
-- Optionally place real bets on Winamax based on group consensus
+### Setup
 
----
+1. Create a free account at [uptimerobot.com](https://uptimerobot.com)
+2. Add a new monitor:
+   - **Type:** `HTTP(s)`
+   - **Friendly Name:** `CDM 2026`
+   - **URL:** `https://your-app.onrender.com/up`
+   - **Monitoring Interval:** `5 minutes`
+3. Optionally add an alert contact (email / Telegram / Slack) to get notified on downtime
 
-## 🧪 Future Improvements
-
-- 🔔 Real-time notifications (match start, results)
-- 📊 Advanced statistics (accuracy, streaks)
-- 💬 Chat between players
-- 🧾 Bet history tracking
-- 🔐 Authentication & private leagues
+> The `/up` endpoint returns HTTP 200 when the app and database are reachable, and HTTP 500 otherwise — making it a reliable health signal.
 
 ---
 
@@ -144,60 +184,6 @@ This project is designed for a group of friends to:
 
 This project is for **entertainment purposes only**.  
 Bet responsibly. No real money handling is managed by the application.
-
----
-
-## 🔁 CI/CD (GitHub Actions + Render)
-
-This repository now supports a CI/CD workflow with GitHub Actions:
-
-- `CI` workflow:
-  - Runs on pull requests to `main` and pushes to `main`
-  - Executes Laravel tests with PHP 8.3
-  - Builds frontend assets with Node.js 22
-
-- `Deploy to Render` workflow:
-  - Runs automatically after `CI` succeeds on `main`
-  - Triggers a Render deploy hook
-  - Verifies app health via `/up`
-
-### Required GitHub Secrets
-
-In your GitHub repository, add these secrets:
-
-- `RENDER_DEPLOY_HOOK_URL`
-  - Found in Render service settings: Deploy Hook
-- `APP_HEALTHCHECK_URL`
-  - Example: `https://your-service.onrender.com/up`
-
-### Required Render Environment Variables
-
-Set these in your Render service:
-
-- `APP_ENV=production`
-- `APP_DEBUG=false`
-- `APP_KEY=<generated-laravel-key>`
-- `APP_URL=https://your-service.onrender.com`
-- `DB_CONNECTION=pgsql`
-- `DB_HOST=<render-postgres-host>`
-- `DB_PORT=5432`
-- `DB_DATABASE=<render-postgres-db>`
-- `DB_USERNAME=<render-postgres-user>`
-- `DB_PASSWORD=<render-postgres-password>`
-- `ODDS_API_KEY=<your-api-key>`
-- `FOOTBALL_DATA_API_KEY=<your-football-data-api-key>`
-
-### Render Cron Job For Live Scores
-
-To run the Laravel scheduler on Render, create a separate `Cron Job` service that uses the same repository and Dockerfile as the web app.
-
-Recommended settings:
-
-- Environment: `Docker`
-- Dockerfile path: `infra/docker/prod/Dockerfile`
-- Schedule: `*/5 * * * *`
-- Command: `php artisan schedule:run`
-- Working directory inside container: `/var/www/html`
 
 Use the same environment variables as the web service for:
 
