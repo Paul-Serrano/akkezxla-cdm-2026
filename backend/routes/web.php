@@ -5,6 +5,7 @@ use App\Livewire\Admin\EditConfig;
 use App\Livewire\Admin\ManageRoles;
 use App\Livewire\Auth\Login;
 use App\Livewire\EditProfile;
+use App\Http\Controllers\FootballDataExplorerController;
 use App\Livewire\MatchDay;
 use App\Livewire\Ranking;
 use App\Livewire\Standings;
@@ -51,4 +52,8 @@ Route::get('/profile', EditProfile::class)
 // Restricted
 Route::get('/ranking', Ranking::class)
     ->name('ranking');
+
+Route::get('/football-data-explorer', FootballDataExplorerController::class)
+    ->middleware(['auth', 'admin'])
+    ->name('football-data.explorer');
 

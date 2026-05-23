@@ -43,6 +43,11 @@
                 <x-menu-item title="Standings" icon="o-table-cells" link="/" />
                 <x-menu-item title="Match Day" icon="o-calendar-days" link="/matchday" />
                 <x-menu-item title="Ranking" icon="o-trophy" link="{{ route('ranking') }}" />
+                @auth
+                    @if (Auth::user()->isAdmin())
+                        <x-menu-item title="Football API Test" icon="o-magnifying-glass" link="{{ route('football-data.explorer') }}" />
+                    @endif
+                @endauth
                 <x-menu-separator />
                 @auth
                     @if (Auth::user()->isAdmin())
