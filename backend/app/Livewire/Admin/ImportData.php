@@ -92,6 +92,16 @@ class ImportData extends Component
         );
     }
 
+    public function runMigrations(): void
+    {
+        $this->runCommand(
+            'migrate',
+            ['--force' => true],
+            'Migrations completed successfully.',
+            'Migrations failed. Check the output below and the application logs.'
+        );
+    }
+
     public function render()
     {
         return view('livewire.admin.import-data');

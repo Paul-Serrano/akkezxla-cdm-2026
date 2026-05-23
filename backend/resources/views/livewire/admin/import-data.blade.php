@@ -9,7 +9,20 @@
                     They use the current environment automatically, so local runs stay local and Render runs use the Render environment.
                 </p>
 
+                <p class="text-xs text-base-content/50">
+                    If prod imports fail with a database error after schema changes, run migrations first.
+                </p>
+
                 <div class="flex flex-wrap gap-3">
+                    <x-button
+                        label="Run migrations"
+                        icon="o-wrench-screwdriver"
+                        class="btn-outline"
+                        wire:click="runMigrations"
+                        wire:loading.attr="disabled"
+                        wire:target="runMigrations"
+                    />
+
                     <x-button
                         label="Import teams"
                         icon="o-play"

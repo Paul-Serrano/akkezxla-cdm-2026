@@ -140,14 +140,18 @@ class ImportPlayers extends Command
                     $bar->finish();
                     $this->newLine();
                     $this->error('Database write failed while importing players.');
+                    $this->error($exception->getMessage());
 
                     Log::error('Player import failed: database query exception while writing players.', [
                         'command' => 'import:players',
                         'db_host' => config('database.connections.pgsql.host'),
                         'db_database' => config('database.connections.pgsql.database'),
+                        'db_driver' => config('database.default'),
                         'player_api_id' => $apiId,
                         'team_api_id' => $teamApiId,
                         'sql_state' => $exception->getCode(),
+                        'sql' => $exception->getSql(),
+                        'bindings' => $exception->getBindings(),
                         'error' => $exception->getMessage(),
                         'duration_seconds' => $duration,
                     ]);
