@@ -55,6 +55,7 @@
                             <x-menu-item title="Users" icon="o-users" link="{{ route('admin.users') }}" />
                             <x-menu-item title="Roles" icon="o-shield-check" link="{{ route('admin.roles') }}" />
                             <x-menu-item title="Config" icon="o-adjustments-horizontal" link="{{ route('admin.config') }}" />
+                            <x-menu-item title="Import Data" icon="o-arrow-down-tray" link="{{ route('admin.import-data') }}" />
                         </x-menu-sub>
                         <x-menu-separator />
                     @endif

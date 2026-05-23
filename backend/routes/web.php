@@ -2,6 +2,7 @@
 
 use App\Livewire\Admin\CreateUser;
 use App\Livewire\Admin\EditConfig;
+use App\Livewire\Admin\ImportData;
 use App\Livewire\Admin\ManageRoles;
 use App\Livewire\Auth\Login;
 use App\Livewire\EditProfile;
@@ -42,6 +43,7 @@ Route::post('/logout', function () {
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users', CreateUser::class)->name('admin.users');
     Route::get('/admin/config', EditConfig::class)->name('admin.config');
+    Route::get('/admin/import-data', ImportData::class)->name('admin.import-data');
     Route::get('/admin/roles', ManageRoles::class)->name('admin.roles');
 });
 
