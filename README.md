@@ -14,7 +14,9 @@ The goal is simple: **prove who knows football best** — and optionally align b
 - 📈 Consensus betting — see the most chosen outcome per match
 - 👥 Role-based access (admin, akkezxla, regular, custom roles)
 - 🛡️ Admin panel — manage users, roles, and app configuration
-- 📊 Group standings per World Cup group
+- 📊 Group standings per World Cup group (sourced from imported football-data standings)
+- 🧪 Admin-only football-data API explorer page for endpoint/query testing
+- ⚙️ Admin Import Data page to run migrations and imports (teams, games, standings, players) without shell access
 - 📱 Mobile-first UI with dark/light theme toggle
 
 ---
@@ -125,6 +127,8 @@ ODDS_API_KEY=                   # optional, for future odds integration
 FOOTBALL_DATA_API_KEY=          # optional, for future match data integration
 ```
 
+`FOOTBALL_DATA_API_KEY` is required for import commands and the API explorer.
+
 ---
 
 ## 🔁 CI/CD (GitHub Actions + Render)
@@ -160,6 +164,26 @@ The production entrypoint (`infra/docker/prod/entrypoint.sh`) supports these opt
 | `RUN_SEEDER` | `false` | Seeds the database |
 | `RUN_IMPORTS` | `false` | Runs `import:teams` + `import:games` artisan commands |
 
+### Admin import workflow (no shell)
+
+For environments like Render where shell access is limited, admins can open:
+
+- `/admin/import-data`
+
+From this page you can run:
+
+- Migrations
+- `import:teams`
+- `import:games --season=2026`
+- `import:standings --season=2026`
+- `import:players`
+
+### Standings import behavior
+
+`import:standings` stores standings metrics directly on each team (`standingPosition`, `standingPoints`, goals, etc.), and the standings UI reads those persisted fields.
+
+When `--season=2026` returns an ungrouped shape from football-data, the command automatically retries the grouped endpoint (without season query) to preserve Group A/B/C ordering.
+
 ---
 
 ## 🟢 Uptime Monitoring (UptimeRobot)
@@ -185,7 +209,9 @@ The `/up` health endpoint (built into Laravel) is used to monitor production upt
 This project is for **entertainment purposes only**.  
 Bet responsibly. No real money handling is managed by the application.
 
-Use the same environment variables as the web service for:
+## ⏰ Render Cron Service
+
+Use the same environment variables as the web service for the cron service:
 
 - `APP_ENV`
 - `APP_DEBUG`
@@ -205,7 +231,12 @@ Recommended cron-specific overrides:
 - `RUN_IMPORTS=false`
 - `RUN_SEEDER=false`
 
-The scheduler will call Laravel every 5 minutes, and Laravel will run `import:live-games --season=2026` from `routes/console.php`. When no games are in progress, the command exits immediately.
+The scheduler should run every 5 minutes. Laravel currently schedules:
+
+- `import:live-games --season=2026`
+- `import:standings --season=2026`
+
+When no games are in progress, `import:live-games` exits quickly.
 
 ### Recommended Branch Protection
 
