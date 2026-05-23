@@ -13,3 +13,7 @@ Artisan::command('inspire', function () {
 // run, so concurrent execution is impossible.
 Schedule::command('import:live-games --season=2026')
     ->everyFiveMinutes();
+
+// Keep persisted team standing fields in sync on the same cadence as game sync.
+Schedule::command('import:standings --season=2026')
+    ->everyFiveMinutes();

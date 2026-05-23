@@ -15,7 +15,7 @@
                 @foreach ($teamsWithStats as $i => $row)
                     <li>
                         <button type="button" wire:click="showPlayers({{ $row['team']->id }})" class="w-full flex items-center gap-2 py-2 text-left">
-                            <span class="text-xs font-bold w-4 text-center text-base-content/40">{{ $i + 1 }}</span>
+                            <span class="text-xs font-bold w-4 text-center text-base-content/40">{{ $row['position'] > 0 ? $row['position'] : $i + 1 }}</span>
                             <img src="{{ $row['team']->crest }}" alt="{{ $row['team']->shortName }}" class="w-6 h-6 object-contain shrink-0" />
                             <span class="flex-1 text-sm font-medium truncate">{{ $row['team']->shortName }}</span>
                             <div class="flex items-center gap-2 text-xs tabular-nums text-base-content/60">
@@ -53,7 +53,7 @@
                 <tbody>
                     @foreach ($teamsWithStats as $i => $row)
                         <tr class="hover cursor-pointer" wire:click="showPlayers({{ $row['team']->id }})">
-                            <td class="text-center text-base-content/40 font-bold text-xs">{{ $i + 1 }}</td>
+                            <td class="text-center text-base-content/40 font-bold text-xs">{{ $row['position'] > 0 ? $row['position'] : $i + 1 }}</td>
                             <td>
                                 <div class="flex items-center gap-2">
                                     <img src="{{ $row['team']->crest }}" alt="{{ $row['team']->shortName }}" class="w-6 h-6 object-contain" />

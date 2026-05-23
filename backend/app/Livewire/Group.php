@@ -2,10 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Models\Game;
 use App\Models\Standing;
 use App\Models\Team;
-use App\Services\StandingCalculatorService;
 use Livewire\Component;
 
 class Group extends Component
@@ -39,7 +37,7 @@ class Group extends Component
     public function render()
     {
         $teams = Team::where('standingId', $this->standing->id)
-            ->orderBy('rank')
+            ->orderByRaw('COALESCE("standingPosition", "rank", 9999) asc')
             ->get();
 
         $selectedTeam = null;
@@ -52,37 +50,40 @@ class Group extends Component
             }
         }
 
-        $teamIds = $teams->pluck('id');
-
-        // All played games involving these teams
-        $games = Game::whereNotNull('scoreHome')
-            ->whereNotNull('scoreAway')
-            ->where(function ($q) use ($teamIds) {
-                $q->whereIn('homeTeamId', $teamIds)
-                  ->orWhereIn('awayTeamId', $teamIds);
-            })
-            ->get();
-
-        // Compute stats per team via shared service
-        $stats = StandingCalculatorService::computeStats($teams, $games);
-
-        // Sort by pts desc, then goal diff desc, then gf desc
-        $teamsWithStats = $teams->map(function ($team) use ($stats) {
-            $teamStats = $stats[$team->id];
-            $gd = $teamStats['gf'] - $teamStats['ga'];
+        // Use persisted standing stats imported from football-data API.
+        $teamsWithStats = $teams->map(function ($team) {
+            $played = (int) ($team->standingPlayedGames ?? 0);
+            $won = (int) ($team->standingWon ?? 0);
+            $drawn = (int) ($team->standingDraw ?? 0);
+            $lost = (int) ($team->standingLost ?? 0);
+            $gf = (int) ($team->standingGoalsFor ?? 0);
+            $ga = (int) ($team->standingGoalsAgainst ?? 0);
+            $pts = (int) ($team->standingPoints ?? 0);
+            $gd = (int) ($team->standingGoalDifference ?? ($gf - $ga));
 
             return [
                 'team'       => $team,
-                'stats'      => $teamStats,
+                'position'   => (int) ($team->standingPosition ?? 0),
+                'stats'      => [
+                    'played' => $played,
+                    'won' => $won,
+                    'drawn' => $drawn,
+                    'lost' => $lost,
+                    'gf' => $gf,
+                    'ga' => $ga,
+                    'pts' => $pts,
+                ],
                 'gd'         => $gd,
                 'gdLabel'    => ($gd > 0 ? '+' : '') . $gd,
                 'gdClass'    => $gd > 0 ? 'text-emerald-500' : ($gd < 0 ? 'text-red-500' : ''),
                 'gdClassRow' => $gd > 0 ? 'text-emerald-500' : ($gd < 0 ? 'text-red-500' : 'text-base-content/40'),
             ];
-        })->sortByDesc(fn($row) => [
-            $row['stats']['pts'],
-            $row['stats']['gf'] - $row['stats']['ga'],
-            $row['stats']['gf'],
+        })->sortBy(fn($row) => [
+            $row['position'] > 0 ? $row['position'] : 9999,
+            -$row['stats']['pts'],
+            -$row['gd'],
+            -$row['stats']['gf'],
+            $row['team']->name,
         ])->values();
 
         return view('livewire.group', compact('teamsWithStats', 'selectedTeam'));

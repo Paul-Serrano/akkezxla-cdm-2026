@@ -17,6 +17,16 @@ class Team extends Model
         'founded',
         'crest',
         'rank',
+        'standingPosition',
+        'standingPlayedGames',
+        'standingForm',
+        'standingWon',
+        'standingDraw',
+        'standingLost',
+        'standingPoints',
+        'standingGoalsFor',
+        'standingGoalsAgainst',
+        'standingGoalDifference',
         'standingId',
     ];
 

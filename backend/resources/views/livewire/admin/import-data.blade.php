@@ -42,6 +42,15 @@
                     />
 
                     <x-button
+                        label="Import standings"
+                        icon="o-play"
+                        class="btn-primary"
+                        wire:click="runStandingsImport"
+                        wire:loading.attr="disabled"
+                        wire:target="runStandingsImport"
+                    />
+
+                    <x-button
                         label="Import players"
                         icon="o-play"
                         class="btn-primary"

@@ -92,6 +92,20 @@ class ImportData extends Component
         );
     }
 
+    public function runStandingsImport(): void
+    {
+        $this->validate([
+            'season' => ['required', 'integer', 'min:2000', 'max:2100'],
+        ]);
+
+        $this->runCommand(
+            'import:standings',
+            ['--season' => (int) $this->season],
+            'Standings import completed successfully.',
+            'Standings import failed. Check the output below and the application logs.'
+        );
+    }
+
     public function runMigrations(): void
     {
         $this->runCommand(
