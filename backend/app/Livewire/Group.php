@@ -11,10 +11,29 @@ use Livewire\Component;
 class Group extends Component
 {
     public Standing $standing;
+    public ?int $selectedTeamId = null;
 
     public function mount(Standing $standing): void
     {
         $this->standing = $standing;
+    }
+
+    public function showPlayers(int $teamId): void
+    {
+        $existsInGroup = Team::where('standingId', $this->standing->id)
+            ->where('id', $teamId)
+            ->exists();
+
+        if (! $existsInGroup) {
+            return;
+        }
+
+        $this->selectedTeamId = $teamId;
+    }
+
+    public function showRanking(): void
+    {
+        $this->selectedTeamId = null;
     }
 
     public function render()
@@ -22,6 +41,16 @@ class Group extends Component
         $teams = Team::where('standingId', $this->standing->id)
             ->orderBy('rank')
             ->get();
+
+        $selectedTeam = null;
+
+        if ($this->selectedTeamId !== null) {
+            $selectedTeam = $teams->firstWhere('id', $this->selectedTeamId);
+
+            if (! $selectedTeam) {
+                $this->selectedTeamId = null;
+            }
+        }
 
         $teamIds = $teams->pluck('id');
 
@@ -56,6 +85,6 @@ class Group extends Component
             $row['stats']['gf'],
         ])->values();
 
-        return view('livewire.group', compact('teamsWithStats'));
+        return view('livewire.group', compact('teamsWithStats', 'selectedTeam'));
     }
 }
