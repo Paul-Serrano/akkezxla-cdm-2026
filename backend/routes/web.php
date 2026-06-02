@@ -7,6 +7,7 @@ use App\Livewire\Admin\ManageRoles;
 use App\Livewire\Auth\Login;
 use App\Livewire\EditProfile;
 use App\Http\Controllers\FootballDataExplorerController;
+use App\Livewire\BettingGuide as BettingGuidePage;
 use App\Livewire\MatchDay;
 use App\Livewire\Ranking;
 use App\Livewire\Standings;
@@ -26,6 +27,7 @@ Route::get('/ready', static fn () => response()->json([
 Route::get('/', Standings::class);
 Route::get('/matchday', MatchDay::class);
 Route::get('/matchday/{matchday}', MatchDay::class);
+Route::get('/betting-guide', BettingGuidePage::class)->name('betting-guide');
 
 // Auth
 Route::middleware(['guest', 'throttle:10,1'])->group(function () {

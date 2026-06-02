@@ -43,6 +43,7 @@
                 <x-menu-item title="Standings" icon="o-table-cells" link="/" />
                 <x-menu-item title="Match Day" icon="o-calendar-days" link="/matchday" />
                 <x-menu-item title="Ranking" icon="o-trophy" link="{{ route('ranking') }}" />
+                <x-menu-item title="How to Bet" icon="o-book-open" link="{{ route('betting-guide') }}" />
                 @auth
                     @if (Auth::user()->isAdmin())
                         <x-menu-item title="Football API Test" icon="o-magnifying-glass" link="{{ route('football-data.explorer') }}" />
