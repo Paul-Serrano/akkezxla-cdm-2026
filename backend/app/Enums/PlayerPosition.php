@@ -5,13 +5,9 @@ namespace App\Enums;
 enum PlayerPosition: string
 {
     case Goalkeeper = 'goalkeeper';
-    case RightBack = 'right_back';
-    case CentreBack = 'centre_back';
-    case LeftBack = 'left_back';
-    case DefensiveMidfield = 'defensive_midfield';
-    case OffensiveMidfield = 'offensive_midfield';
-    case Attacker = 'attacker';
-    case Other = 'other';
+    case Defense = 'defense';
+    case Midfield = 'midfield';
+    case Offence = 'offence';
 
     public static function fromRole(?string $role): self
     {
@@ -21,44 +17,54 @@ enum PlayerPosition: string
             return self::Goalkeeper;
         }
 
-        if (str_contains($value, 'right-back') || str_contains($value, 'right back') || $value === 'rb' || $value === 'rwb') {
-            return self::RightBack;
+        if (
+            str_contains($value, 'back') ||
+            str_contains($value, 'centre-back') ||
+            str_contains($value, 'center-back') ||
+            str_contains($value, 'defender') ||
+            str_contains($value, 'defence') ||
+            str_contains($value, 'defense') ||
+            $value === 'rb' ||
+            $value === 'rwb' ||
+            $value === 'cb' ||
+            $value === 'lb' ||
+            $value === 'lwb'
+        ) {
+            return self::Defense;
         }
 
-        if (str_contains($value, 'centre-back') || str_contains($value, 'center-back') || str_contains($value, 'centre back') || str_contains($value, 'center back') || $value === 'cb') {
-            return self::CentreBack;
+        if (
+            str_contains($value, 'midfield') ||
+            str_contains($value, 'midfielder') ||
+            $value === 'dm' ||
+            $value === 'cdm' ||
+            $value === 'cm' ||
+            $value === 'cam'
+        ) {
+            return self::Midfield;
         }
 
-        if (str_contains($value, 'left-back') || str_contains($value, 'left back') || $value === 'lb' || $value === 'lwb') {
-            return self::LeftBack;
+        if (
+            str_contains($value, 'winger') ||
+            str_contains($value, 'forward') ||
+            str_contains($value, 'striker') ||
+            str_contains($value, 'attacker') ||
+            str_contains($value, 'offence') ||
+            str_contains($value, 'offense')
+        ) {
+            return self::Offence;
         }
 
-        if (str_contains($value, 'defensive midfield') || str_contains($value, 'defensive midfielder') || str_contains($value, 'holding midfielder') || $value === 'dm' || $value === 'cdm') {
-            return self::DefensiveMidfield;
-        }
-
-        if (str_contains($value, 'attacking midfield') || str_contains($value, 'attacking midfielder') || str_contains($value, 'offensive midfield') || str_contains($value, 'offensive midfielder') || str_contains($value, 'central midfield') || str_contains($value, 'midfield') || $value === 'cm' || $value === 'cam') {
-            return self::OffensiveMidfield;
-        }
-
-        if (str_contains($value, 'winger') || str_contains($value, 'forward') || str_contains($value, 'striker') || str_contains($value, 'attacker')) {
-            return self::Attacker;
-        }
-
-        return self::Other;
+        return self::Midfield;
     }
 
     public function rank(): int
     {
         return match ($this) {
             self::Goalkeeper => 0,
-            self::RightBack => 1,
-            self::CentreBack => 2,
-            self::LeftBack => 3,
-            self::DefensiveMidfield => 4,
-            self::OffensiveMidfield => 5,
-            self::Attacker => 6,
-            self::Other => 7,
+            self::Defense => 1,
+            self::Midfield => 2,
+            self::Offence => 3,
         };
     }
 }
