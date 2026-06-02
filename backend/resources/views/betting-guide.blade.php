@@ -85,7 +85,7 @@
                         </li>
                         <li class="flex gap-3">
                             <span class="badge badge-error badge-sm mt-0.5">Locked</span>
-                            <span>Once the game finishes, betting is closed for that match.</span>
+                            <span>Once the game starts, betting is closed for that match.</span>
                         </li>
                         <li class="flex gap-3">
                             <span class="badge badge-warning badge-sm mt-0.5">Ranking</span>
