@@ -78,6 +78,11 @@ class ImportPlayers extends Command
             return self::FAILURE;
         }
 
+        Player::query()->delete();
+        Log::info('Player import cleared existing players before refresh.', [
+            'command' => 'import:players',
+        ]);
+
         $totalSquadEntries = array_sum(array_map(
             static fn (array $team): int => count($team['squad'] ?? []),
             $teams
