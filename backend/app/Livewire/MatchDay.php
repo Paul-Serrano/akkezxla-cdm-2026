@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Models\Bet;
 use App\Models\Game;
 use App\Models\Standing;
+use App\Models\User;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -16,6 +18,10 @@ class MatchDay extends Component
     public ?int $editGameId = null;
     public ?int $editScoreHome = null;
     public ?int $editScoreAway = null;
+
+    public ?int $consensusGameId = null;
+    public array $consensusRows = [];
+    public ?string $consensusGameTitle = null;
 
     public $saved;
 
@@ -104,6 +110,45 @@ class MatchDay extends Component
         $this->cancelEditScore();
     }
 
+    public function openConsensusModal(int $gameId): void
+    {
+        abort_unless(auth()->user()?->isAkkezxla(), 403);
+
+        $game = Game::with(['homeTeam', 'awayTeam'])->findOrFail($gameId);
+
+        $users = User::query()
+            ->whereHas('roles', fn ($q) => $q->where('name', User::ROLE_AKKEZXLA))
+            ->orderByRaw("COALESCE(NULLIF(alias, ''), name) asc")
+            ->get(['id', 'name', 'alias']);
+
+        $betsByUser = Bet::query()
+            ->where('gameId', $gameId)
+            ->whereIn('userId', $users->pluck('id'))
+            ->get(['userId', 'scoreHome', 'scoreAway'])
+            ->keyBy('userId');
+
+        $this->consensusRows = $users->map(function ($user) use ($betsByUser) {
+            $bet = $betsByUser->get($user->id);
+            $hasBet = $bet && $bet->scoreHome !== null && $bet->scoreAway !== null;
+
+            return [
+                'user' => $user->alias ?: $user->name,
+                'bet' => $hasBet ? ((int) $bet->scoreHome . ' - ' . (int) $bet->scoreAway) : null,
+                'hasBet' => $hasBet,
+            ];
+        })->values()->all();
+
+        $this->consensusGameId = $gameId;
+        $this->consensusGameTitle = $game->homeTeam->shortName . ' vs ' . $game->awayTeam->shortName;
+    }
+
+    public function closeConsensusModal(): void
+    {
+        $this->consensusGameId = null;
+        $this->consensusRows = [];
+        $this->consensusGameTitle = null;
+    }
+
     public function render()
     {
         $games = $this->gamesByDay;
@@ -131,6 +176,8 @@ class MatchDay extends Component
             'nextMatchday'     => min($safeTotalDays, $this->matchday + 1),
             'isFirstDay'       => $this->matchday <= 1,
             'isLastDay'        => $this->matchday >= $safeTotalDays,
+            'consensusRows'    => $this->consensusRows,
+            'consensusGameTitle' => $this->consensusGameTitle,
         ]);
     }
 }

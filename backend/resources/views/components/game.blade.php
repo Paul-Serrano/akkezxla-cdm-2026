@@ -42,7 +42,12 @@
             <div class="divider my-0"></div>
             {{-- Consensus bet (admin/winamax) --}}
             @if ($canSeeConsensus)
-                <div class="flex flex-wrap items-center justify-center gap-1 mb-1">
+                <button
+                    wire:click="openConsensusModal({{ $game->id }})"
+                    class="flex w-full flex-wrap items-center justify-center gap-1 mb-1 rounded-md px-1 py-1 cursor-pointer hover:bg-base-200/70"
+                    title="Show all akkezxla bets"
+                    type="button"
+                >
                     @if ($consensus['total'] === 0)
                         <span class="text-xs text-base-content/30 italic">No consensus bet</span>
                     @else
@@ -55,7 +60,7 @@
                             </span>
                         @endforeach
                     @endif
-                </div>
+                </button>
             @endif
             <livewire:place-bet :game="$game" :key="'mob-bet-'.$game->id" />
         </div>
@@ -110,7 +115,12 @@
             <div class="shrink-0 flex flex-col items-center gap-2">
                 {{-- Consensus bet (admin/winamax) --}}
                 @if ($canSeeConsensus)
-                    <div class="flex flex-wrap items-center justify-center gap-1">
+                    <button
+                        wire:click="openConsensusModal({{ $game->id }})"
+                        class="flex flex-wrap items-center justify-center gap-1 rounded-md px-1 py-1 cursor-pointer hover:bg-base-200/70"
+                        title="Show all akkezxla bets"
+                        type="button"
+                    >
                         @if ($consensus['total'] === 0)
                             <span class="text-xs text-base-content/30 italic">No bets yet</span>
                         @else
@@ -123,7 +133,7 @@
                                 </span>
                             @endforeach
                         @endif
-                    </div>
+                    </button>
                 @endif
                 <livewire:place-bet :game="$game" :key="'desk-bet-'.$game->id" />
             </div>

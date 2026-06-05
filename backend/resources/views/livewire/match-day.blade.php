@@ -96,4 +96,44 @@
             <div class="modal-backdrop" wire:click="cancelEditScore"></div>
         </dialog>
     @endif
+
+    {{-- Akkezxla: all bets for selected game --}}
+    @if ($consensusGameId)
+        <dialog class="modal modal-open">
+            <div class="modal-box max-w-lg">
+                <h3 class="font-bold text-lg">Consensus Details</h3>
+                <p class="text-sm text-base-content/60 mb-4">{{ $consensusGameTitle }}</p>
+
+                <div class="max-h-96 overflow-y-auto border border-base-200 rounded-box">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Akkezxla User</th>
+                                <th class="text-right">Bet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($consensusRows as $row)
+                                <tr>
+                                    <td>{{ $row['user'] }}</td>
+                                    <td class="text-right">
+                                        @if ($row['hasBet'])
+                                            <span class="badge badge-success">{{ $row['bet'] }}</span>
+                                        @else
+                                            <span class="badge badge-ghost">No bet</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-action">
+                    <x-button label="Close" wire:click="closeConsensusModal" />
+                </div>
+            </div>
+            <div class="modal-backdrop" wire:click="closeConsensusModal"></div>
+        </dialog>
+    @endif
 </div>
