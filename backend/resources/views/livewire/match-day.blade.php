@@ -1,12 +1,9 @@
 <div x-on:bet-placed.window="$wire.refreshGames()">
-    {{-- Header with day navigation --}}
+    {{-- Header with page navigation --}}
     <x-header separator>
         <x-slot:title>
-            Match Day {{ $matchday }}
+            Match Page {{ $matchday }}
         </x-slot:title>
-        <x-slot:subtitle>
-            {{ $date ?? 'No games scheduled' }}
-        </x-slot:subtitle>
         <x-slot:actions>
             <div class="join">
                 <x-button
@@ -14,21 +11,21 @@
                     wire:click="$set('matchday', {{ $previousMatchday }})"
                     :disabled="$isFirstDay"
                     class="join-item btn-sm"
-                    tooltip="Previous day"
+                    tooltip="Previous page"
                 />
                 <x-button
                     icon="o-chevron-right"
                     wire:click="$set('matchday', {{ $nextMatchday }})"
                     :disabled="$isLastDay"
                     class="join-item btn-sm"
-                    tooltip="Next day"
+                    tooltip="Next page"
                 />
             </div>
         </x-slot:actions>
     </x-header>
 
     @if (!$hasGames)
-        <x-alert title="No games found for this day." icon="o-information-circle" class="alert-info" />
+        <x-alert title="No games found for this page." icon="o-information-circle" class="alert-info" />
     @else
         {{-- MOBILE: stacked cards --}}
         <div class="block md:hidden">

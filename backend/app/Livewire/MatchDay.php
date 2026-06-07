@@ -12,8 +12,11 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class MatchDay extends Component
 {
+    private const GAMES_PER_PAGE = 4;
+    private const TOTAL_PAGES = 18;
+
     public int $matchday;
-    protected $gamesByDay;
+    protected $gamesByPage;
 
     public ?int $editGameId = null;
     public ?int $editScoreHome = null;
@@ -27,21 +30,26 @@ class MatchDay extends Component
 
     public function boot(): void
     {
-        $this->loadGamesByDay();
+        $this->loadGamesByPage();
     }
 
-    private function loadGamesByDay(): void
+    private function loadGamesByPage(): void
     {
-        $this->gamesByDay = Game::with(['homeTeam.standing', 'awayTeam.standing'])
+        $this->gamesByPage = Game::with(['homeTeam.standing', 'awayTeam.standing'])
             ->whereNotNull('homeTeamId')
             ->whereNotNull('awayTeamId')
             ->orderBy('startDate')
             ->get()
-            ->groupBy(fn ($g) => \Carbon\Carbon::parse($g->startDate)->toDateString())
+            ->take(self::GAMES_PER_PAGE * self::TOTAL_PAGES)
+            ->chunk(self::GAMES_PER_PAGE)
             ->values();
 
+        while ($this->gamesByPage->count() < self::TOTAL_PAGES) {
+            $this->gamesByPage->push(collect());
+        }
+
         if (isset($this->matchday)) {
-            $this->matchday = min(max(1, $this->matchday), max(1, $this->gamesByDay->count()));
+            $this->matchday = min(max(1, $this->matchday), max(1, $this->gamesByPage->count()));
         }
     }
 
@@ -52,13 +60,13 @@ class MatchDay extends Component
             return;
         }
 
-        // Default: first day that still has at least one unplayed game.
-        // Fall back to the last day if everything is already played.
-        $groups = $this->gamesByDay;
+        // Default: first page that still has at least one unplayed game.
+        // Fall back to the last page if everything is already played.
+        $groups = $this->gamesByPage;
 
-        $this->matchday = $groups->count() ?: 1; // fallback = last day
-        foreach ($groups as $index => $dayGames) {
-            if ($dayGames->whereNull('scoreHome')->isNotEmpty()) {
+        $this->matchday = $groups->count() ?: 1; // fallback = last page
+        foreach ($groups as $index => $pageGames) {
+            if ($pageGames->whereNull('scoreHome')->isNotEmpty()) {
                 $this->matchday = $index + 1;
                 break;
             }
@@ -67,7 +75,7 @@ class MatchDay extends Component
 
     public function refreshGames(): void
     {
-        $this->loadGamesByDay();
+        $this->loadGamesByPage();
     }
 
     public function startEditScore(int $gameId): void
@@ -106,7 +114,7 @@ class MatchDay extends Component
             Standing::recalculate($game->homeTeam->standingId);
         }
 
-        $this->loadGamesByDay();
+        $this->loadGamesByPage();
         $this->cancelEditScore();
     }
 
@@ -151,31 +159,31 @@ class MatchDay extends Component
 
     public function render()
     {
-        $games = $this->gamesByDay;
+        $games = $this->gamesByPage;
 
-        // $matchday is 1-based index into date groups
-        $dayGames = $games->get($this->matchday - 1, collect());
-        $totalDays = $games->count();
-        $editGame = $dayGames->firstWhere('id', $this->editGameId);
-        $safeTotalDays = max(1, $totalDays);
-        $date = $dayGames->first()?->startDate
-            ? \Carbon\Carbon::parse($dayGames->first()->startDate)->format('l d F Y')
+        // $matchday is 1-based index into pages
+        $pageGames = $games->get($this->matchday - 1, collect());
+        $totalPages = $games->count();
+        $editGame = $pageGames->firstWhere('id', $this->editGameId);
+        $safeTotalPages = max(1, $totalPages);
+        $date = $pageGames->first()?->startDate
+            ? \Carbon\Carbon::parse($pageGames->first()->startDate)->format('l d F Y')
             : null;
 
         return view('livewire.match-day', [
-            'games'            => $dayGames,
-            'hasGames'         => $dayGames->isNotEmpty(),
+            'games'            => $pageGames,
+            'hasGames'         => $pageGames->isNotEmpty(),
             'editGame'         => $editGame,
             'editHomeCrest'    => $editGame?->homeTeam?->crest ?? '',
             'editAwayCrest'    => $editGame?->awayTeam?->crest ?? '',
             'editHomeAlt'      => $editGame?->homeTeam?->shortName ?? 'Home',
             'editAwayAlt'      => $editGame?->awayTeam?->shortName ?? 'Away',
             'date'             => $date,
-            'totalDays'        => $totalDays,
+            'totalPages'       => $totalPages,
             'previousMatchday' => max(1, $this->matchday - 1),
-            'nextMatchday'     => min($safeTotalDays, $this->matchday + 1),
+            'nextMatchday'     => min($safeTotalPages, $this->matchday + 1),
             'isFirstDay'       => $this->matchday <= 1,
-            'isLastDay'        => $this->matchday >= $safeTotalDays,
+            'isLastDay'        => $this->matchday >= $safeTotalPages,
             'consensusRows'    => $this->consensusRows,
             'consensusGameTitle' => $this->consensusGameTitle,
         ]);
