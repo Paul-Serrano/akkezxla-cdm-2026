@@ -149,21 +149,14 @@ class MatchDay extends Component
         $validated = $this->validate([
             'winamaxTotalOdds' => ['required', 'numeric', 'min:1'],
             'winamaxAmountBet' => ['required', 'numeric', 'min:0.01'],
-            'winamaxEarning' => ['nullable', 'numeric', 'min:0'],
+            'winamaxEarning' => ['required', 'numeric', 'min:0'],
             'winamaxStatus' => ['required', 'in:pending,placed,won,lost'],
         ]);
-
-        if ($validated['winamaxStatus'] === WinamaxBetStatus::Won->value && $this->winamaxEarning === '') {
-            $this->addError('winamaxEarning', 'Earning is required when status is Won.');
-            return;
-        }
 
         $bet = WinamaxBet::firstOrNew(['matchdayPage' => $this->matchday]);
         $bet->totalOdds = (float) $validated['winamaxTotalOdds'];
         $bet->amountBet = (float) $validated['winamaxAmountBet'];
-        $bet->earning = $validated['winamaxEarning'] !== null && $validated['winamaxEarning'] !== ''
-            ? (float) $validated['winamaxEarning']
-            : null;
+        $bet->earning = (float) $validated['winamaxEarning'];
         $bet->status = WinamaxBetStatus::from($validated['winamaxStatus']);
         $bet->userId = auth()->id();
         $bet->save();

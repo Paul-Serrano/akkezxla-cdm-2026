@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('winamax_bet', 'earning')) {
             Schema::table('winamax_bet', function (Blueprint $table) {
-                $table->decimal('earning', 10, 2)->nullable()->after('amountBet');
+                $table->decimal('earning', 10, 2)->default(0)->after('amountBet');
             });
         }
     }

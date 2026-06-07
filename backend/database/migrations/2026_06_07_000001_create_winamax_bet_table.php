@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('matchdayPage')->unique();
             $table->decimal('totalOdds', 8, 2);
             $table->decimal('amountBet', 10, 2);
-            $table->decimal('earning', 10, 2)->nullable();
+            $table->decimal('earning', 10, 2);
             $table->string('status', 16)->default('pending');
             $table->foreignId('userId')->nullable()->constrained('user')->nullOnDelete();
             $table->timestamps();

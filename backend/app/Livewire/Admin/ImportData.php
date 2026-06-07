@@ -116,6 +116,16 @@ class ImportData extends Component
         );
     }
 
+    public function runMigrationsRollback(): void
+    {
+        $this->runCommand(
+            'migrate:rollback',
+            ['--force' => true],
+            'Migration rollback completed successfully.',
+            'Migration rollback failed. Check the output below and the application logs.'
+        );
+    }
+
     public function render()
     {
         return view('livewire.admin.import-data');

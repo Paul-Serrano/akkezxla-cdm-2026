@@ -24,6 +24,15 @@
                     />
 
                     <x-button
+                        label="Rollback migrations"
+                        icon="o-arrow-uturn-left"
+                        class="btn-outline"
+                        wire:click="runMigrationsRollback"
+                        wire:loading.attr="disabled"
+                        wire:target="runMigrationsRollback"
+                    />
+
+                    <x-button
                         label="Import teams"
                         icon="o-play"
                         class="btn-primary"

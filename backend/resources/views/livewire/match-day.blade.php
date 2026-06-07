@@ -28,6 +28,7 @@
                             type="number"
                             step="0.01"
                             min="1"
+                            required
                             wire:model="winamaxTotalOdds"
                             class="input input-bordered"
                             placeholder="e.g. 8.45"
@@ -40,6 +41,7 @@
                             type="number"
                             step="0.01"
                             min="0.01"
+                            required
                             wire:model="winamaxAmountBet"
                             class="input input-bordered"
                             placeholder="e.g. 20"
@@ -52,6 +54,7 @@
                             type="number"
                             step="0.01"
                             min="0"
+                            required
                             wire:model="winamaxEarning"
                             class="input input-bordered"
                             placeholder="e.g. 52.40"
@@ -60,7 +63,7 @@
 
                     <label class="form-control">
                         <span class="label-text">Status</span>
-                        <select wire:model="winamaxStatus" class="select select-bordered">
+                        <select wire:model="winamaxStatus" class="select select-bordered" required>
                             @foreach ($winamaxStatusOptions as $status)
                                 <option value="{{ $status->value }}">{{ $status->label() }}</option>
                             @endforeach
