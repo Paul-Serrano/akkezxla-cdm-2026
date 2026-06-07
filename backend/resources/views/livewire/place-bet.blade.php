@@ -22,6 +22,14 @@
             @else
                 <p class="text-xs text-base-content/30 text-center italic">No bet placed</p>
             @endif
+        @elseif ($isLockedByWinamax)
+            @if ($betStatus === \App\Enums\BetStatus::Placed)
+                <p class="text-sm tabular-nums font-semibold text-base-content/60 text-center">
+                    {{ $scoreHome }} &mdash; {{ $scoreAway }}
+                </p>
+            @else
+                <p class="text-xs text-base-content/30 text-center italic">Bet locked by Winamax ticket</p>
+            @endif
         @else
             {{-- Active bet form --}}
             <form wire:submit="save" class="flex items-center gap-2 mt-2 flex-wrap justify-center">

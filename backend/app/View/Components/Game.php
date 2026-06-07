@@ -21,9 +21,11 @@ class Game extends Component
     public bool $canSeeConsensus;
     public array $consensus;
     public bool $isAdmin;
+    public int $betRefreshKey;
 
-    public function __construct(public GameModel $game)
+    public function __construct(public GameModel $game, int $betRefreshKey = 0)
     {
+        $this->betRefreshKey = $betRefreshKey;
         $this->home       = $game->homeTeam;
         $this->away       = $game->awayTeam;
         $this->gameStatus = GameStatus::fromGame($game);

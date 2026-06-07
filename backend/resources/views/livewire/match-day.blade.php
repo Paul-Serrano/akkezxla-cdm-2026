@@ -1,4 +1,89 @@
 <div x-on:bet-placed.window="$wire.refreshGames()">
+    @if ($canManageWinamaxBet)
+        <div class="card bg-base-100 shadow border border-base-200 mb-4">
+            <div class="card-body gap-3">
+                <div class="flex items-center justify-between gap-2">
+                    <h2 class="card-title text-base">Winamax Bet - Page {{ $matchday }}</h2>
+                    @if ($winamaxSaved)
+                        <span class="badge badge-success">Saved</span>
+                    @endif
+                </div>
+
+                @if (!$pageHasExactlyFourGames)
+                    <x-alert
+                        title="This page does not contain exactly 4 games. Winamax bet cannot be saved yet."
+                        icon="o-information-circle"
+                        class="alert-warning"
+                    />
+                @else
+                    <p class="text-xs text-base-content/60">
+                        Games: {{ implode(' | ', $winamaxGamesSummary) }}
+                    </p>
+                @endif
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                    <label class="form-control">
+                        <span class="label-text">Total odds</span>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="1"
+                            wire:model="winamaxTotalOdds"
+                            class="input input-bordered"
+                            placeholder="e.g. 8.45"
+                        />
+                    </label>
+
+                    <label class="form-control">
+                        <span class="label-text">Amount bet</span>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            wire:model="winamaxAmountBet"
+                            class="input input-bordered"
+                            placeholder="e.g. 20"
+                        />
+                    </label>
+
+                    <label class="form-control">
+                        <span class="label-text">Earning</span>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            wire:model="winamaxEarning"
+                            class="input input-bordered"
+                            placeholder="e.g. 52.40"
+                        />
+                    </label>
+
+                    <label class="form-control">
+                        <span class="label-text">Status</span>
+                        <select wire:model="winamaxStatus" class="select select-bordered">
+                            @foreach ($winamaxStatusOptions as $status)
+                                <option value="{{ $status->value }}">{{ $status->label() }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+
+                    <x-button
+                        label="Save Winamax Bet"
+                        class="btn-primary"
+                        wire:click="saveWinamaxBet"
+                        :disabled="!$pageHasExactlyFourGames"
+                    />
+                </div>
+
+                @error('winamaxTotalOdds') <p class="text-error text-xs">{{ $message }}</p> @enderror
+                @error('winamaxAmountBet') <p class="text-error text-xs">{{ $message }}</p> @enderror
+                @error('winamaxEarning') <p class="text-error text-xs">{{ $message }}</p> @enderror
+                @error('winamaxStatus') <p class="text-error text-xs">{{ $message }}</p> @enderror
+                @error('winamaxBet') <p class="text-error text-xs">{{ $message }}</p> @enderror
+            </div>
+        </div>
+    @endif
+
     {{-- Header with page navigation --}}
     <x-header separator>
         <x-slot:title>
@@ -30,7 +115,9 @@
         {{-- MOBILE: stacked cards --}}
         <div class="block md:hidden">
             @foreach ($games as $game)
-                <x-game :game="$game" />
+                <div wire:key="mob-game-{{ $game->id }}-{{ $betRenderNonce }}">
+                    <x-game :game="$game" :bet-refresh-key="$betRenderNonce" />
+                </div>
                 @if (!$loop->last)
                     <div class="flex items-center gap-3 my-1 px-2">
                         <div class="flex-1 border-t-2 border-base-300"></div>
@@ -44,7 +131,9 @@
         {{-- DESKTOP: single column centered, wider cards --}}
         <div class="hidden md:flex flex-col gap-4 mx-auto">
             @foreach ($games as $game)
-                <x-game :game="$game" />
+                <div wire:key="desk-game-{{ $game->id }}-{{ $betRenderNonce }}">
+                    <x-game :game="$game" :bet-refresh-key="$betRenderNonce" />
+                </div>
             @endforeach
         </div>
     @endif

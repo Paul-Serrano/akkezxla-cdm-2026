@@ -23,6 +23,7 @@ class User extends Authenticatable
     const ROLE_REGULAR = 'regular';
     const ROLE_AKKEZXLA = 'akkezxla';
     const ROLE_USPEG = 'uspeg';
+    const ROLE_WINAMAX = 'winamax';
 
     public function roles(): BelongsToMany
     {
@@ -47,6 +48,16 @@ class User extends Authenticatable
     public function isUspeg(): bool
     {
         return $this->hasRole(self::ROLE_USPEG);
+    }
+
+    public function isWinamax(): bool
+    {
+        return $this->hasRole(self::ROLE_WINAMAX);
+    }
+
+    public function winamaxBets()
+    {
+        return $this->hasMany(WinamaxBet::class, 'userId');
     }
 
     protected function casts(): array

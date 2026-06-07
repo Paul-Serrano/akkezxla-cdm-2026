@@ -11,6 +11,7 @@ use App\Livewire\BettingGuide as BettingGuidePage;
 use App\Livewire\MatchDay;
 use App\Livewire\Ranking;
 use App\Livewire\Standings;
+use App\Livewire\WinamaxBetSummary;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -60,4 +61,8 @@ Route::get('/ranking', Ranking::class)
 Route::get('/football-data-explorer', FootballDataExplorerController::class)
     ->middleware(['auth', 'admin'])
     ->name('football-data.explorer');
+
+Route::get('/winamax-bet', WinamaxBetSummary::class)
+    ->middleware(['auth', 'akkezxla'])
+    ->name('winamax-bet.summary');
 

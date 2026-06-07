@@ -2,10 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Enums\WinamaxBetStatus;
 use App\Models\Bet;
 use App\Models\Game;
 use App\Models\Standing;
 use App\Models\User;
+use App\Models\WinamaxBet;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -25,6 +27,14 @@ class MatchDay extends Component
     public ?int $consensusGameId = null;
     public array $consensusRows = [];
     public ?string $consensusGameTitle = null;
+
+    public ?int $winamaxBetId = null;
+    public string $winamaxTotalOdds = '';
+    public string $winamaxAmountBet = '';
+    public string $winamaxEarning = '';
+    public string $winamaxStatus = WinamaxBetStatus::Pending->value;
+    public bool $winamaxSaved = false;
+    public int $betRenderNonce = 0;
 
     public $saved;
 
@@ -56,26 +66,34 @@ class MatchDay extends Component
     public function mount(?int $matchday = null): void
     {
         if ($matchday !== null) {
-            $this->matchday = $matchday;
-            return;
-        }
+            $this->matchday = min(max(1, $matchday), max(1, $this->gamesByPage->count()));
+        } else {
+            // Default: first page that still has at least one unplayed game.
+            // Fall back to the last page if everything is already played.
+            $groups = $this->gamesByPage;
 
-        // Default: first page that still has at least one unplayed game.
-        // Fall back to the last page if everything is already played.
-        $groups = $this->gamesByPage;
-
-        $this->matchday = $groups->count() ?: 1; // fallback = last page
-        foreach ($groups as $index => $pageGames) {
-            if ($pageGames->whereNull('scoreHome')->isNotEmpty()) {
-                $this->matchday = $index + 1;
-                break;
+            $this->matchday = $groups->count() ?: 1; // fallback = last page
+            foreach ($groups as $index => $pageGames) {
+                if ($pageGames->whereNull('scoreHome')->isNotEmpty()) {
+                    $this->matchday = $index + 1;
+                    break;
+                }
             }
         }
+
+        $this->loadWinamaxBetForCurrentPage();
     }
 
     public function refreshGames(): void
     {
         $this->loadGamesByPage();
+        $this->loadWinamaxBetForCurrentPage();
+    }
+
+    public function updatedMatchday(): void
+    {
+        $this->matchday = min(max(1, $this->matchday), max(1, $this->gamesByPage->count()));
+        $this->loadWinamaxBetForCurrentPage();
     }
 
     public function startEditScore(int $gameId): void
@@ -118,6 +136,46 @@ class MatchDay extends Component
         $this->cancelEditScore();
     }
 
+    public function saveWinamaxBet(): void
+    {
+        abort_unless(auth()->user()?->isWinamax(), 403);
+
+        $pageGames = $this->currentPageGames();
+        if ($pageGames->count() !== self::GAMES_PER_PAGE) {
+            $this->addError('winamaxBet', 'This page must contain exactly 4 games to save a Winamax bet.');
+            return;
+        }
+
+        $validated = $this->validate([
+            'winamaxTotalOdds' => ['required', 'numeric', 'min:1'],
+            'winamaxAmountBet' => ['required', 'numeric', 'min:0.01'],
+            'winamaxEarning' => ['nullable', 'numeric', 'min:0'],
+            'winamaxStatus' => ['required', 'in:pending,placed,won,lost'],
+        ]);
+
+        if ($validated['winamaxStatus'] === WinamaxBetStatus::Won->value && $this->winamaxEarning === '') {
+            $this->addError('winamaxEarning', 'Earning is required when status is Won.');
+            return;
+        }
+
+        $bet = WinamaxBet::firstOrNew(['matchdayPage' => $this->matchday]);
+        $bet->totalOdds = (float) $validated['winamaxTotalOdds'];
+        $bet->amountBet = (float) $validated['winamaxAmountBet'];
+        $bet->earning = $validated['winamaxEarning'] !== null && $validated['winamaxEarning'] !== ''
+            ? (float) $validated['winamaxEarning']
+            : null;
+        $bet->status = WinamaxBetStatus::from($validated['winamaxStatus']);
+        $bet->userId = auth()->id();
+        $bet->save();
+
+        $bet->games()->sync($pageGames->pluck('id')->all());
+
+        $this->refreshGames();
+        $this->winamaxBetId = $bet->id;
+        $this->winamaxSaved = true;
+        $this->betRenderNonce++;
+    }
+
     public function openConsensusModal(int $gameId): void
     {
         abort_unless(auth()->user()?->isAkkezxla(), 403);
@@ -157,12 +215,44 @@ class MatchDay extends Component
         $this->consensusGameTitle = null;
     }
 
+    private function currentPageGames()
+    {
+        return $this->gamesByPage->get($this->matchday - 1, collect());
+    }
+
+    private function loadWinamaxBetForCurrentPage(): void
+    {
+        $this->winamaxSaved = false;
+        $this->resetErrorBag('winamaxBet');
+
+        $bet = WinamaxBet::query()
+            ->where('matchdayPage', $this->matchday)
+            ->first();
+
+        if (!$bet) {
+            $this->winamaxBetId = null;
+            $this->winamaxTotalOdds = '';
+            $this->winamaxAmountBet = '';
+            $this->winamaxEarning = '';
+            $this->winamaxStatus = WinamaxBetStatus::Pending->value;
+            return;
+        }
+
+        $this->winamaxBetId = $bet->id;
+        $this->winamaxTotalOdds = number_format((float) $bet->totalOdds, 2, '.', '');
+        $this->winamaxAmountBet = number_format((float) $bet->amountBet, 2, '.', '');
+        $this->winamaxEarning = $bet->earning !== null
+            ? number_format((float) $bet->earning, 2, '.', '')
+            : '';
+        $this->winamaxStatus = $bet->status?->value ?? WinamaxBetStatus::Pending->value;
+    }
+
     public function render()
     {
         $games = $this->gamesByPage;
 
         // $matchday is 1-based index into pages
-        $pageGames = $games->get($this->matchday - 1, collect());
+        $pageGames = $this->currentPageGames();
         $totalPages = $games->count();
         $editGame = $pageGames->firstWhere('id', $this->editGameId);
         $safeTotalPages = max(1, $totalPages);
@@ -184,6 +274,16 @@ class MatchDay extends Component
             'nextMatchday'     => min($safeTotalPages, $this->matchday + 1),
             'isFirstDay'       => $this->matchday <= 1,
             'isLastDay'        => $this->matchday >= $safeTotalPages,
+            'canManageWinamaxBet' => auth()->user()?->isWinamax() ?? false,
+            'pageHasExactlyFourGames' => $pageGames->count() === self::GAMES_PER_PAGE,
+            'winamaxGamesSummary' => $pageGames->map(function ($game) {
+                $home = $game->homeTeam?->shortName ?? 'Home';
+                $away = $game->awayTeam?->shortName ?? 'Away';
+
+                return $home . ' vs ' . $away;
+            })->all(),
+            'betRenderNonce' => $this->betRenderNonce,
+            'winamaxStatusOptions' => WinamaxBetStatus::cases(),
             'consensusRows'    => $this->consensusRows,
             'consensusGameTitle' => $this->consensusGameTitle,
         ]);

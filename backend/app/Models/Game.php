@@ -30,6 +30,11 @@ class Game extends Model
         return $this->belongsTo(Team::class, 'awayTeamId');
     }
 
+    public function winamaxBets()
+    {
+        return $this->belongsToMany(WinamaxBet::class, 'winamax_bet_game', 'gameId', 'winamaxBetId');
+    }
+
     /**
      * Compute the consensus bet outcome (home / draw / away) from bets placed by users in the given roles.
      */

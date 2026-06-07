@@ -43,6 +43,11 @@
                 <x-menu-item title="Standings" icon="o-table-cells" link="/" />
                 <x-menu-item title="Match Day" icon="o-calendar-days" link="/matchday" />
                 <x-menu-item title="Ranking" icon="o-trophy" link="{{ route('ranking') }}" />
+                @auth
+                    @if (Auth::user()->isAkkezxla())
+                        <x-menu-item title="Winamax Bet" icon="o-banknotes" link="{{ route('winamax-bet.summary') }}" />
+                    @endif
+                @endauth
                 <x-menu-item title="How to Bet" icon="o-book-open" link="{{ route('betting-guide') }}" />
                 @auth
                     @if (Auth::user()->isAdmin())

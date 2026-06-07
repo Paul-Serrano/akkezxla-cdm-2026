@@ -23,7 +23,7 @@ class ManageRoles extends Component
     public string $editColor  = '';
 
     /** Roles that cannot be deleted */
-    protected array $protected = ['admin', 'akkezxla', 'uspeg', 'regular'];
+    protected array $protected = ['admin', 'akkezxla', 'uspeg', 'regular', 'winamax'];
 
     public function mount(): void
     {

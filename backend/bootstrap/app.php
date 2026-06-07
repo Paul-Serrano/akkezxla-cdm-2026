@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\RequireAdmin::class,
+            'akkezxla' => \App\Http\Middleware\RequireAkkezxla::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

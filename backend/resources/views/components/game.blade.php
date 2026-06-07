@@ -62,7 +62,7 @@
                     @endif
                 </button>
             @endif
-            <livewire:place-bet :game="$game" :key="'mob-bet-'.$game->id" />
+            <livewire:place-bet :game="$game" :key="'mob-bet-'.$game->id.'-'.$betRefreshKey" />
         </div>
     </div>
 </div>
@@ -135,7 +135,7 @@
                         @endif
                     </button>
                 @endif
-                <livewire:place-bet :game="$game" :key="'desk-bet-'.$game->id" />
+                <livewire:place-bet :game="$game" :key="'desk-bet-'.$game->id.'-'.$betRefreshKey" />
             </div>
         </div>
     </div>
