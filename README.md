@@ -8,15 +8,18 @@ The goal is simple: **prove who knows football best** — and optionally align b
 
 ## 🚀 Features
 
-- 📅 Browse all World Cup matches by match day
+- 📅 Browse all World Cup matches on 18 pages (4 games per page), in chronological order
 - 🧠 Place predictions (1 / N / 2) on each game
 - 🏆 Public ranking leaderboard (visible without login)
 - 📈 Consensus betting — see the most chosen outcome per match
+- 💸 Winamax ticket management per Match Day page (total odds, amount bet, earning, status)
+- 🔒 Automatic lock of game betting when linked Winamax ticket status is `Placed`, `Won`, or `Lost` (still open on `Pending`)
+- 📋 Akkezxla-only Winamax Bet summary page with per-ticket details and global financial totals
 - 👥 Role-based access (admin, akkezxla, regular, custom roles)
 - 🛡️ Admin panel — manage users, roles, and app configuration
 - 📊 Group standings per World Cup group (sourced from imported football-data standings)
 - 🧪 Admin-only football-data API explorer page for endpoint/query testing
-- ⚙️ Admin Import Data page to run migrations and imports (teams, games, standings, players) without shell access
+- ⚙️ Admin Import Data page to run migrations, migration rollback, and imports (teams, games, standings, players) without shell access
 - 📱 Mobile-first UI with dark/light theme toggle
 
 ---
@@ -173,10 +176,22 @@ For environments like Render where shell access is limited, admins can open:
 From this page you can run:
 
 - Migrations
+- `migrate:rollback`
 - `import:teams`
 - `import:games --season=2026`
 - `import:standings --season=2026`
 - `import:players`
+
+## 🎟️ Winamax Bet Flow
+
+- Winamax users can save one Winamax ticket per Match Day page (4 linked games)
+- Required fields: `totalOdds`, `amountBet`, `earning`, `status`
+- Allowed statuses: `Pending`, `Placed`, `Won`, `Lost`
+- When a ticket exists for a game page, player betting on linked games is allowed only if ticket status is `Pending`
+- Akkezxla users can access `/winamax-bet` to review all tickets, statuses, and totals:
+  - Total money placed (sum of `amountBet`)
+  - Total earnings on won tickets (sum of `earning` where status = `Won`)
+  - Total earned (`won earnings - amount bet`)
 
 ### Standings import behavior
 
