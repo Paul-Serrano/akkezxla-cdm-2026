@@ -1,4 +1,5 @@
 {{-- Consensus macro (reused in both layouts) --}}
+@php($betRefreshKey = $betRefreshKey ?? 0)
 
 {{-- MOBILE --}}
 <div class="block md:hidden">
@@ -62,7 +63,9 @@
                     @endif
                 </button>
             @endif
-            <livewire:place-bet :game="$game" :key="'mob-bet-'.$game->id.'-'.$betRefreshKey" />
+            <div wire:ignore>
+                <livewire:place-bet :game="$game" :key="'mob-bet-'.$game->id.'-'.$betRefreshKey" />
+            </div>
         </div>
     </div>
 </div>
@@ -135,7 +138,9 @@
                         @endif
                     </button>
                 @endif
-                <livewire:place-bet :game="$game" :key="'desk-bet-'.$game->id.'-'.$betRefreshKey" />
+                <div wire:ignore>
+                    <livewire:place-bet :game="$game" :key="'desk-bet-'.$game->id.'-'.$betRefreshKey" />
+                </div>
             </div>
         </div>
     </div>

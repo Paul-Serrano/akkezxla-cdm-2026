@@ -9,6 +9,7 @@ use App\Models\Standing;
 use App\Models\User;
 use App\Models\WinamaxBet;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 #[Layout('components.layouts.app')]
@@ -84,6 +85,7 @@ class MatchDay extends Component
         $this->loadWinamaxBetForCurrentPage();
     }
 
+    #[On('bet-placed')]
     public function refreshGames(): void
     {
         $this->loadGamesByPage();

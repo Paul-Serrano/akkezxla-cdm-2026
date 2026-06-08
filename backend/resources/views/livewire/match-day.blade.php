@@ -1,4 +1,4 @@
-<div x-on:bet-placed.window="$wire.refreshGames()">
+<div>
     @if ($canManageWinamaxBet)
         <div class="card bg-base-100 shadow border border-base-200 mb-4">
             <div class="card-body gap-3">
