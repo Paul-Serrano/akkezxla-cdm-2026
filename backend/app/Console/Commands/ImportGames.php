@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Game;
 use App\Models\Standing;
 use App\Models\Team;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -107,10 +108,14 @@ class ImportGames extends Command
                 $scoreAway = null;
             }
 
+            $startDateParis = isset($match['utcDate'])
+                ? Carbon::parse($match['utcDate'], 'UTC')->setTimezone('Europe/Paris')
+                : null;
+
             Game::updateOrCreate(
                 ['apiId' => $match['id']],
                 [
-                    'startDate'  => $match['utcDate'],
+                    'startDate'  => $startDateParis,
                     'scoreHome'  => $scoreHome,
                     'scoreAway'  => $scoreAway,
                     'homeTeamId' => $homeTeam->id,
