@@ -11,8 +11,11 @@
                 </button>
             @endif
             <div class="flex items-center justify-center gap-2 mb-1">
-                @if ($group)
+                @if ($game->stage === 'GROUP_STAGE' && $group)
                     <span class="text-xs font-medium badge badge-xs badge-info">Groupe {{ $group }}</span>
+                    <span class="text-base-content/20">·</span>
+                @elseif ($game->stage)
+                    <span class="text-xs font-medium badge badge-xs badge-info">{{ $game->stage }}</span>
                     <span class="text-base-content/20">·</span>
                 @endif
                 <span class="text-xs text-base-content/50">{{ $date }}</span>
@@ -81,8 +84,10 @@
             @endif
             {{-- Home --}}
             <div>
-            @if ($group)
+            @if ($game->stage === 'GROUP_STAGE' && $group)
                 <span class="text-xs font-medium badge badge-xs badge-info">Groupe {{ $group }}</span>
+            @elseif ($game->stage)
+                <span class="text-xs font-medium badge badge-xs badge-info">{{ $game->stage }}</span>
             @endif
             </div>
             <div class="flex items-center gap-3 flex-1 justify-end">

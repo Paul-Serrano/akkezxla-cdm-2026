@@ -9,12 +9,15 @@
                     @endif
                 </div>
 
-                @if (!$pageHasExactlyFourGames)
+                @if (!$pageMeetsWinamaxRequirements)
                     <x-alert
-                        title="This page does not contain exactly 4 games. Winamax bet cannot be saved yet."
+                        title="This page does not match Winamax game-count rules for its stage."
                         icon="o-information-circle"
                         class="alert-warning"
                     />
+                    <p class="text-xs text-base-content/60">
+                        {{ $winamaxExpectedGamesText }}
+                    </p>
                 @else
                     <p class="text-xs text-base-content/60">
                         Games: {{ implode(' | ', $winamaxGamesSummary) }}
@@ -74,7 +77,7 @@
                         label="Save Winamax Bet"
                         class="btn-primary"
                         wire:click="saveWinamaxBet"
-                        :disabled="!$pageHasExactlyFourGames"
+                        :disabled="!$pageMeetsWinamaxRequirements"
                     />
                 </div>
 

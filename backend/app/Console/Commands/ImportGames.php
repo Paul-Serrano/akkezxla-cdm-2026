@@ -120,6 +120,7 @@ class ImportGames extends Command
                     'scoreAway'  => $scoreAway,
                     'homeTeamId' => $homeTeam->id,
                     'awayTeamId' => $awayTeam->id,
+                    'stage'      => $match['stage'],
                 ]
             );
 

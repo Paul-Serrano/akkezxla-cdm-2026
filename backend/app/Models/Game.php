@@ -18,6 +18,7 @@ class Game extends Model
         'scoreAway',
         'homeTeamId',
         'awayTeamId',
+        'stage',
     ];
 
     public function homeTeam()

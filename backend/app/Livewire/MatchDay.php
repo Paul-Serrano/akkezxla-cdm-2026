@@ -15,8 +15,9 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class MatchDay extends Component
 {
-    private const GAMES_PER_PAGE = 4;
-    private const TOTAL_PAGES = 18;
+    private const GROUP_STAGE = 'GROUP_STAGE';
+    private const GROUP_STAGE_GAMES_PER_PAGE = 4;
+    private const OTHER_STAGE_GAMES_PER_PAGE = 3;
 
     public int $matchday;
     protected $gamesByPage;
@@ -46,18 +47,48 @@ class MatchDay extends Component
 
     private function loadGamesByPage(): void
     {
-        $this->gamesByPage = Game::with(['homeTeam.standing', 'awayTeam.standing'])
+        $games = Game::with(['homeTeam.standing', 'awayTeam.standing'])
             ->whereNotNull('homeTeamId')
             ->whereNotNull('awayTeamId')
             ->orderBy('startDate')
-            ->get()
-            ->take(self::GAMES_PER_PAGE * self::TOTAL_PAGES)
-            ->chunk(self::GAMES_PER_PAGE)
-            ->values();
+            ->get();
 
-        while ($this->gamesByPage->count() < self::TOTAL_PAGES) {
-            $this->gamesByPage->push(collect());
+        $pages = collect();
+        $currentPage = collect();
+        $currentStage = null;
+        $currentLimit = 0;
+
+        foreach ($games as $game) {
+            $gameStage = $game->stage;
+            $gameLimit = $this->gamesPerPageForStage($gameStage);
+
+            if ($currentPage->isEmpty()) {
+                $currentStage = $gameStage;
+                $currentLimit = $gameLimit;
+            }
+
+            if (!$currentPage->isEmpty() && $gameStage !== $currentStage) {
+                $pages->push($currentPage->values());
+                $currentPage = collect();
+                $currentStage = $gameStage;
+                $currentLimit = $gameLimit;
+            }
+
+            $currentPage->push($game);
+
+            if ($currentPage->count() === $currentLimit) {
+                $pages->push($currentPage->values());
+                $currentPage = collect();
+                $currentStage = null;
+                $currentLimit = 0;
+            }
         }
+
+        if ($currentPage->isNotEmpty()) {
+            $pages->push($currentPage->values());
+        }
+
+        $this->gamesByPage = $pages->values();
 
         if (isset($this->matchday)) {
             $this->matchday = min(max(1, $this->matchday), max(1, $this->gamesByPage->count()));
@@ -143,8 +174,8 @@ class MatchDay extends Component
         abort_unless(auth()->user()?->isWinamax(), 403);
 
         $pageGames = $this->currentPageGames();
-        if ($pageGames->count() !== self::GAMES_PER_PAGE) {
-            $this->addError('winamaxBet', 'This page must contain exactly 4 games to save a Winamax bet.');
+        if (!$this->pageMeetsWinamaxRequirements($pageGames)) {
+            $this->addError('winamaxBet', 'This page does not match Winamax game-count requirements for its stage.');
             return;
         }
 
@@ -215,6 +246,29 @@ class MatchDay extends Component
         return $this->gamesByPage->get($this->matchday - 1, collect());
     }
 
+    private function gamesPerPageForStage(?string $stage): int
+    {
+        return $stage === self::GROUP_STAGE
+            ? self::GROUP_STAGE_GAMES_PER_PAGE
+            : self::OTHER_STAGE_GAMES_PER_PAGE;
+    }
+
+    private function pageMeetsWinamaxRequirements($pageGames): bool
+    {
+        if ($pageGames->isEmpty()) {
+            return false;
+        }
+
+        $stage = $pageGames->first()?->stage;
+        $expectedCount = $this->gamesPerPageForStage($stage);
+
+        if ($stage === self::GROUP_STAGE) {
+            return $pageGames->count() === $expectedCount;
+        }
+
+        return $pageGames->count() >= 1 && $pageGames->count() <= $expectedCount;
+    }
+
     private function loadWinamaxBetForCurrentPage(): void
     {
         $this->winamaxSaved = false;
@@ -248,6 +302,8 @@ class MatchDay extends Component
 
         // $matchday is 1-based index into pages
         $pageGames = $this->currentPageGames();
+        $pageStage = $pageGames->first()?->stage;
+        $pageMeetsWinamaxRequirements = $this->pageMeetsWinamaxRequirements($pageGames);
         $totalPages = $games->count();
         $editGame = $pageGames->firstWhere('id', $this->editGameId);
         $safeTotalPages = max(1, $totalPages);
@@ -270,7 +326,10 @@ class MatchDay extends Component
             'isFirstDay'       => $this->matchday <= 1,
             'isLastDay'        => $this->matchday >= $safeTotalPages,
             'canManageWinamaxBet' => auth()->user()?->isWinamax() ?? false,
-            'pageHasExactlyFourGames' => $pageGames->count() === self::GAMES_PER_PAGE,
+            'pageMeetsWinamaxRequirements' => $pageMeetsWinamaxRequirements,
+            'winamaxExpectedGamesText' => $pageStage === self::GROUP_STAGE
+                ? 'GROUP_STAGE pages require exactly 4 games.'
+                : 'Non-GROUP_STAGE pages allow up to 3 games (the last page can be incomplete).',
             'winamaxGamesSummary' => $pageGames->map(function ($game) {
                 $home = $game->homeTeam?->shortName ?? 'Home';
                 $away = $game->awayTeam?->shortName ?? 'Away';
