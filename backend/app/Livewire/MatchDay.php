@@ -2,12 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Enums\GameStage;
 use App\Enums\WinamaxBetStatus;
 use App\Models\Bet;
 use App\Models\Game;
 use App\Models\Standing;
 use App\Models\User;
 use App\Models\WinamaxBet;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -15,10 +17,6 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class MatchDay extends Component
 {
-    private const GROUP_STAGE = 'GROUP_STAGE';
-    private const GROUP_STAGE_GAMES_PER_PAGE = 4;
-    private const OTHER_STAGE_GAMES_PER_PAGE = 3;
-
     public int $matchday;
     protected $gamesByPage;
 
@@ -54,38 +52,57 @@ class MatchDay extends Component
             ->get();
 
         $pages = collect();
-        $currentPage = collect();
-        $currentStage = null;
-        $currentLimit = 0;
 
-        foreach ($games as $game) {
-            $gameStage = $game->stage;
-            $gameLimit = $this->gamesPerPageForStage($gameStage);
+        $this->pushChunkedPages(
+            $pages,
+            $this->gamesForStage($games, GameStage::GroupStage),
+            GameStage::GroupStage->standardGamesPerPage()
+        );
 
-            if ($currentPage->isEmpty()) {
-                $currentStage = $gameStage;
-                $currentLimit = $gameLimit;
-            }
-
-            if (!$currentPage->isEmpty() && $gameStage !== $currentStage) {
-                $pages->push($currentPage->values());
-                $currentPage = collect();
-                $currentStage = $gameStage;
-                $currentLimit = $gameLimit;
-            }
-
-            $currentPage->push($game);
-
-            if ($currentPage->count() === $currentLimit) {
-                $pages->push($currentPage->values());
-                $currentPage = collect();
-                $currentStage = null;
-                $currentLimit = 0;
-            }
+        $last32Games = $this->gamesForStage($games, GameStage::Last32);
+        if ($last32Games->isNotEmpty()) {
+            $pages->push($last32Games->take(1)->values());
+            $this->pushChunkedPages($pages, $last32Games->slice(1)->values(), GameStage::Last32->standardGamesPerPage());
         }
 
-        if ($currentPage->isNotEmpty()) {
-            $pages->push($currentPage->values());
+        $this->pushChunkedPages(
+            $pages,
+            $this->gamesForStage($games, GameStage::Last16),
+            GameStage::Last16->standardGamesPerPage()
+        );
+
+        $this->pushChunkedPages(
+            $pages,
+            $this->gamesForStage($games, GameStage::QuarterFinals),
+            GameStage::QuarterFinals->standardGamesPerPage()
+        );
+
+        $this->pushChunkedPages(
+            $pages,
+            $this->gamesForStage($games, GameStage::SemiFinals),
+            GameStage::SemiFinals->standardGamesPerPage()
+        );
+
+        $knownStageValues = collect(GameStage::cases())
+            ->map(fn (GameStage $stage) => $stage->value)
+            ->all();
+
+        $otherStageGames = $games
+            ->filter(fn (Game $game) => !in_array($game->stage, $knownStageValues, true))
+            ->values();
+
+        $this->pushChunkedPages($pages, $otherStageGames, 3);
+
+        $finalPageGames = $games
+            ->filter(function (Game $game) {
+                $stage = GameStage::fromValue($game->stage);
+
+                return $stage?->isCombinedFinalPageStage() ?? false;
+            })
+            ->values();
+
+        if ($finalPageGames->isNotEmpty()) {
+            $pages->push($finalPageGames);
         }
 
         $this->gamesByPage = $pages->values();
@@ -246,27 +263,86 @@ class MatchDay extends Component
         return $this->gamesByPage->get($this->matchday - 1, collect());
     }
 
-    private function gamesPerPageForStage(?string $stage): int
+    private function gamesForStage(Collection $games, GameStage $stage): Collection
     {
-        return $stage === self::GROUP_STAGE
-            ? self::GROUP_STAGE_GAMES_PER_PAGE
-            : self::OTHER_STAGE_GAMES_PER_PAGE;
+        return $games
+            ->filter(fn (Game $game) => GameStage::fromValue($game->stage) === $stage)
+            ->values();
     }
 
-    private function pageMeetsWinamaxRequirements($pageGames): bool
+    private function pushChunkedPages(Collection $pages, Collection $games, int $gamesPerPage): void
+    {
+        if ($gamesPerPage <= 0 || $games->isEmpty()) {
+            return;
+        }
+
+        foreach ($games->chunk($gamesPerPage) as $chunk) {
+            $pages->push($chunk->values());
+        }
+    }
+
+    private function pageMeetsWinamaxRequirements(Collection $pageGames): bool
     {
         if ($pageGames->isEmpty()) {
             return false;
         }
 
-        $stage = $pageGames->first()?->stage;
-        $expectedCount = $this->gamesPerPageForStage($stage);
+        $count = $pageGames->count();
+        $stage = GameStage::fromValue($pageGames->first()?->stage);
 
-        if ($stage === self::GROUP_STAGE) {
-            return $pageGames->count() === $expectedCount;
+        if ($stage === GameStage::GroupStage) {
+            return $count === GameStage::GroupStage->standardGamesPerPage();
         }
 
-        return $pageGames->count() >= 1 && $pageGames->count() <= $expectedCount;
+        if ($stage === GameStage::Last32 && $this->isFirstLast32Page()) {
+            return $count === 1;
+        }
+
+        if ($stage === null) {
+            return $count >= 1 && $count <= 3;
+        }
+
+        return $count >= 1 && $count <= $stage->standardGamesPerPage();
+    }
+
+    private function isFirstLast32Page(): bool
+    {
+        $currentPageIndex = max(0, $this->matchday - 1);
+
+        $firstLast32PageIndex = $this->gamesByPage->search(function (Collection $games) {
+            $stage = GameStage::fromValue($games->first()?->stage);
+
+            return $stage === GameStage::Last32;
+        });
+
+        return $firstLast32PageIndex !== false && $currentPageIndex === $firstLast32PageIndex;
+    }
+
+    private function winamaxExpectedGamesText(Collection $pageGames): string
+    {
+        if ($pageGames->isEmpty()) {
+            return 'This page has no games.';
+        }
+
+        $stage = GameStage::fromValue($pageGames->first()?->stage);
+
+        if ($stage === GameStage::GroupStage) {
+            return 'GROUP_STAGE pages require exactly 4 games.';
+        }
+
+        if ($stage === GameStage::Last32 && $this->isFirstLast32Page()) {
+            return 'The first LAST_32 page requires exactly 1 game.';
+        }
+
+        if ($stage === null) {
+            return 'This page allows up to 3 games.';
+        }
+
+        return sprintf(
+            '%s pages allow up to %d games (the last page can be incomplete).',
+            $stage->value,
+            $stage->standardGamesPerPage()
+        );
     }
 
     private function loadWinamaxBetForCurrentPage(): void
@@ -302,7 +378,6 @@ class MatchDay extends Component
 
         // $matchday is 1-based index into pages
         $pageGames = $this->currentPageGames();
-        $pageStage = $pageGames->first()?->stage;
         $pageMeetsWinamaxRequirements = $this->pageMeetsWinamaxRequirements($pageGames);
         $totalPages = $games->count();
         $editGame = $pageGames->firstWhere('id', $this->editGameId);
@@ -327,9 +402,7 @@ class MatchDay extends Component
             'isLastDay'        => $this->matchday >= $safeTotalPages,
             'canManageWinamaxBet' => auth()->user()?->isWinamax() ?? false,
             'pageMeetsWinamaxRequirements' => $pageMeetsWinamaxRequirements,
-            'winamaxExpectedGamesText' => $pageStage === self::GROUP_STAGE
-                ? 'GROUP_STAGE pages require exactly 4 games.'
-                : 'Non-GROUP_STAGE pages allow up to 3 games (the last page can be incomplete).',
+            'winamaxExpectedGamesText' => $this->winamaxExpectedGamesText($pageGames),
             'winamaxGamesSummary' => $pageGames->map(function ($game) {
                 $home = $game->homeTeam?->shortName ?? 'Home';
                 $away = $game->awayTeam?->shortName ?? 'Away';
